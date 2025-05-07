@@ -54,3 +54,6 @@ gem "tailwindcss-rails", "~> 4.2"
 gem 'devise'
 gem 'devise-jwt'
 gem 'jsonapi-serializer'
+
+gem 'twilio-ruby'
+
