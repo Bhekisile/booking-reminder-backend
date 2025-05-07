@@ -4,6 +4,5 @@ class Client < ApplicationRecord
 
   validates :name, presence: true, length: { maximum: 255 }
   validates :surname, presence: true, length: { maximum: 255 }
-  validates :price, presence: true, numericality: { greater_than: 0 }
   validates :cellphone, presence: true, length: { maximum: 10 }
 end
