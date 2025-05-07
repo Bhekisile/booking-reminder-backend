@@ -10,23 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_22_140353) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_06_204320) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "bookings", force: :cascade do |t|
     t.time "time", null: false
     t.date "date", null: false
-    t.string "description", null: false
     t.boolean "payment", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "price"
+    t.text "notes"
+    t.boolean "reminder", default: false
+    t.bigint "client_id", null: false
+    t.index ["client_id"], name: "index_bookings_on_client_id"
   end
 
   create_table "clients", force: :cascade do |t|
     t.string "name", null: false
     t.string "surname", null: false
-    t.decimal "price", precision: 8, scale: 2, null: false
     t.string "cellphone", null: false
     t.string "whatsapp"
     t.string "email"
@@ -38,10 +41,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_22_140353) do
 
   create_table "reminders", force: :cascade do |t|
     t.datetime "remind_at", null: false
-    t.string "message", null: false
+    t.text "message", null: false
     t.bigint "booking_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "message_type"
     t.index ["booking_id"], name: "index_reminders_on_booking_id"
   end
 
@@ -59,8 +63,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_22_140353) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "password_digest"
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "jti", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["jti"], name: "index_users_on_jti", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "bookings", "clients"
   add_foreign_key "clients", "users"
   add_foreign_key "reminders", "bookings"
   add_foreign_key "settings", "users"
