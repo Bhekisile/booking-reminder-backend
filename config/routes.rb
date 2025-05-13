@@ -19,6 +19,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      get 'bookings/all', to: 'bookings#all'
       resources :users
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]

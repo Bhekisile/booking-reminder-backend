@@ -1,14 +1,34 @@
-class BookingsController < ApplicationController
+class Api::V1::BookingsController < ApplicationController
   def index
-    @bookings = Booking.all
+    @bookings = Booking.includes(:client)
+      .where("date >= ?", Date.today)
+      .order(:date, :time)
+
+      if params[:query].present?
+        query = "%#{params[:query].downcase}%"
+        @bookings = @bookings.joins(:client).where("LOWER(clients.name) LIKE ? OR LOWER(clients.surname) LIKE ?", query, query)
+      end
+
+      @bookings = @bookings.paginate(page: params[:page], per_page: 5)
+
+    render json: {
+      bookings: @bookings.as_json(include: { client: { only: [:name, :surname] } }),
+      meta: {
+        total_pages: @bookings.total_pages,
+        total_entries: @bookings.total_entries,
+        current_page: @bookings.current_page
+      }
+    }
+  end
+
+  def all
+    @bookings = Booking.includes(:client).all
+    render json: @bookings.as_json(include: { client: { only: [:name, :surname] } })
   end
 
   def show
     @booking = Booking.find(params[:id])
-  end
-
-  def new
-    @booking = Booking.new
+    render json: @booking
   end
 
   def create
@@ -34,19 +54,6 @@ class BookingsController < ApplicationController
     end
   end
 
-  # def create
-  #   @booking = Booking.new(booking_params)
-  #   if @booking.save
-  #     redirect_to @booking, notice: 'Booking was successfully created.'
-  #   else
-  #     render :new
-  #   end
-  # end
-
-  def edit
-    @booking = Booking.find(params[:id])
-  end
-
   def update
     @booking = Booking.find(params[:id])
     if @booking.update(booking_params)
@@ -65,7 +72,7 @@ class BookingsController < ApplicationController
   private
 
   def booking_params
-    params.require(:booking).permit(:time, :date, :description, :payment, :price, :notes, :reminder)
+    params.require(:booking).permit(:time, :date, :payment, :price, :notes, :reminder, :client_id)
   end
 
   def formatted_date(booking)
