@@ -56,4 +56,6 @@ gem 'devise-jwt'
 gem 'jsonapi-serializer'
 
 gem 'twilio-ruby'
+gem 'will_paginate', '~> 3.1.0'
+
 
