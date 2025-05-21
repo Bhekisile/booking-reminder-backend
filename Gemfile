@@ -57,5 +57,7 @@ gem 'jsonapi-serializer'
 
 gem 'twilio-ruby'
 gem 'will_paginate', '~> 3.1.0'
+gem 'warden', '~> 1.2', '>= 1.2.6'
+gem 'recursive-open-struct', '~> 0.2.1'
 
 
