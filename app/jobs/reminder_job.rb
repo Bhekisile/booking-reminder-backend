@@ -5,17 +5,23 @@ class ReminderJob < ApplicationJob
     booking = Booking.find(booking_id)
     client = booking.client
 
-    ReminderMailer.appointment_reminder(client, booking).deliver_now
-    # Send a reminder message to the client
+    message = "Hi #{client.name}, this is a reminder for your appointment on #{appointment.date.strftime('%A at %I:%M %p')}."
 
-    # reminder = 
-    Reminder.create!(
-      booking: booking,
-      message_type: "reminder_email",
-      message: "Email reminder sent to #{client.email} for #{booking.date}",
-      remind_at: Time.current
+    # Email reminder
+    # ReminderMailer.appointment_reminder(client, booking).deliver_now
+
+    # SMS
+    SmsPortalSender.send_sms(
+      to: client.phone_number, # Should be like +27XXXXXXXXX
+      message: message
     )
 
-    # You could integrate SMS or email sending here
+    # Save message record
+    Reminder.create!(
+      booking: booking,
+      message_type: "reminder_sms",
+      message: "SMS reminder sent to #{client.cellphone} for #{booking.date}",
+      remind_at: Time.current
+    )
   end
 end
