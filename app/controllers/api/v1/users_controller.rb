@@ -1,7 +1,7 @@
 class Api::V1::UsersController < ApplicationController
   include Devise::Controllers::Helpers
 
-  before_action :authenticate_user!, only: [:update]
+  before_action :authenticate_user!, only: [:update, :current, :destroy]
   before_action :set_user, only: [:update]
 
   # GET /api/v1/users
@@ -9,6 +9,15 @@ class Api::V1::UsersController < ApplicationController
     @users = User.all
     render json: @users
   end
+
+  def current
+    if current_user
+      render json: { user_id: current_user.id, email: current_user.email, name: current_user.name }
+    else
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
+  end
+
 
   # GET /api/v1/users/1
   def show
