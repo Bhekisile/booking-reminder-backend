@@ -1,6 +1,16 @@
 class Api::V1::ClientsController < ApplicationController
+
   def index
-    render json: Client.all
+    if params[:search].present?
+      # Search query is present, filter clients
+      search_term = "%#{params[:search]}%"
+      @clients = Client.where("name ILIKE ? OR surname ILIKE ?", search_term, search_term)
+    else
+      # No search query, return all clients
+      @clients = Client.all
+    end
+
+    render json: @clients
   end
 
   def show
