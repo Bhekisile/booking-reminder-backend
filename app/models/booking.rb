@@ -1,5 +1,5 @@
 class Booking < ApplicationRecord
-  belongs_to :client, dependent: :destroy
+  belongs_to :client
 
   validates :time, presence: true
   validates :date, presence: true

@@ -19,7 +19,10 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      get 'current_user', to: 'users#current'
+      get 'bookings/monthly_counts', to: 'bookings#monthly_counts'
       get 'bookings/all', to: 'bookings#all'
+      get 'settings', to: 'settings#index'
       resources :users
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]

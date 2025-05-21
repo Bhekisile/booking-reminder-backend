@@ -9,7 +9,7 @@ class Api::V1::BookingsController < ApplicationController
         @bookings = @bookings.joins(:client).where("LOWER(clients.name) LIKE ? OR LOWER(clients.surname) LIKE ?", query, query)
       end
 
-      @bookings = @bookings.paginate(page: params[:page], per_page: 5)
+      @bookings = @bookings.paginate(page: params[:page], per_page: 6)
 
     render json: {
       bookings: @bookings.as_json(include: { client: { only: [:name, :surname] } }),
@@ -54,6 +54,27 @@ class Api::V1::BookingsController < ApplicationController
     end
   end
 
+  def monthly_counts
+    year = params[:year].present? ? params[:year].to_i : Date.today.year
+
+    month_trunc = Arel.sql("DATE_TRUNC('month', date)")
+  
+    counts = Booking
+      .where('EXTRACT(YEAR FROM date) = ?', year)
+      .group(month_trunc)
+      .order(month_trunc)
+      .count
+  
+    formatted_counts = counts.map do |month, count|
+      {
+        month: month.strftime('%B'), # e.g., "January"
+        count: count
+      }
+    end
+  
+    render json: formatted_counts
+  end
+
   def update
     @booking = Booking.find(params[:id])
     if @booking.update(booking_params)
@@ -65,8 +86,29 @@ class Api::V1::BookingsController < ApplicationController
 
   def destroy
     @booking = Booking.find(params[:id])
-    @booking.destroy
-    redirect_to bookings_path, notice: 'Booking was successfully deleted.'
+    
+    # Store client ID before destroying the booking to check if client still exists after
+    client_id = @booking.client_id
+    
+    # Use destroy! to raise an exception if something goes wrong
+    ActiveRecord::Base.transaction do
+      # Only delete the booking record, not any associated records
+      result = Booking.where(id: params[:id]).delete_all
+      
+      if result > 0
+        # Check if client still exists
+        client_exists = Client.where(id: client_id).exists?
+        
+        render json: { 
+          message: 'Booking cancelled successfully',
+          client_preserved: client_exists 
+        }, status: :ok
+      else
+        render json: { error: 'Booking could not be found' }, status: :not_found
+      end
+    end
+  rescue => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   private
