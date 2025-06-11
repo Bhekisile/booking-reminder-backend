@@ -6,8 +6,10 @@ Rails.application.routes.draw do
 },
   controllers: {
     sessions: 'users/sessions',
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    passwords: 'users/passwords',
   }
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -19,14 +21,21 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      get 'current_user', to: 'users#current'
+      resources :users do
+        collection do
+          get 'current' #GET /api/v1/users/current
+        end
+        member do
+          patch :update_avatar #PATCH /api/v1/users/:id/avatar
+        end
+      end
+
       get 'bookings/monthly_counts', to: 'bookings#monthly_counts'
       get 'bookings/all', to: 'bookings#all'
       get 'settings', to: 'settings#index'
-      resources :users
+      
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]
     end
-  end
-  
+  end 
 end

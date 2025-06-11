@@ -1,4 +1,5 @@
 require "active_support/core_ext/integer/time"
+require "certifi"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -30,7 +31,8 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = "X-Accel-Redirect" # for NGINX
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  config.active_storage.service = :amazon
+  config.active_storage.service_urls_expire_in = 5.minutes
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
@@ -87,4 +89,20 @@ Rails.application.configure do
   # ]
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3001 }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: "smtp.gmail.com", # or another SMTP server
+    port: 587,
+    domain: "gmail.com",
+    authentication: "plain",
+    enable_starttls_auto: true,
+    user_name: ENV["GMAIL_USERNAME"],
+    password: ENV["GMAIL_PASSWORD"],
+    openssl_verify_mode:  'peer',
+    ssl:                  false,
+    tls:                  false,
+    ca_file:              Certifi.where
+    }
+
 end

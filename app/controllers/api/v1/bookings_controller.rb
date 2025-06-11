@@ -43,7 +43,11 @@ class Api::V1::BookingsController < ApplicationController
           message: "Hi #{client.name}, your appointment is booked for #{formatted_date(@booking)}.",
           remind_at: Time.current
         )
-  
+        # Send SMS reminder immediately
+        SmsPortalSender.send_sms(
+          to: @booking.client.cellphone,
+          message: "Hi #{@booking.client.name}, You have placed a booking with #{@settings.name}. Your appointment is booked for #{formatted_date(@booking)}. You can cancel your appointment at any time before your appointment date. Thank you."
+        )
         # Schedule reminder message (using Sidekiq or ActiveJob)
         ReminderJob.set(wait_until: @booking.date - 1.day).perform_later(@booking.id)
       end
@@ -77,10 +81,10 @@ class Api::V1::BookingsController < ApplicationController
 
   def update
     @booking = Booking.find(params[:id])
-    if @booking.update(booking_params)
-      redirect_to @booking, notice: 'Booking was successfully updated.'
+    if @booking.update(update_params)
+      render json: { message: 'Booking was successfully updated.', booking: @booking }, status: :ok
     else
-      render :edit
+      render json: @booking.errors, status: :unprocessable_entity
     end
   end
 
@@ -114,8 +118,13 @@ class Api::V1::BookingsController < ApplicationController
   private
 
   def booking_params
-    params.require(:booking).permit(:time, :date, :payment, :price, :notes, :reminder, :client_id)
+    params.require(:booking).permit(:time, :date, :client_id, :price, :payment, :notes, :reminder)
   end
+
+  def update_params
+    params.require(:booking).permit(:payment)
+  end
+
 
   def formatted_date(booking)
     booking.date.strftime("%A, %B %d at %I:%M %p")
