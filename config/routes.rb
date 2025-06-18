@@ -21,12 +21,11 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :users do
+      resources :users, only: [] do
+        patch :update_avatar, on: :member # PATCH /api/v1/users/:id/avatar
+        delete :destroy_avatar, on: :member # NEW: Route for deleting avatar
         collection do
           get 'current' #GET /api/v1/users/current
-        end
-        member do
-          patch :update_avatar #PATCH /api/v1/users/:id/avatar
         end
       end
 

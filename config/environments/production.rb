@@ -92,17 +92,18 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: 'localhost', port: 3001 }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: "smtp.gmail.com", # or another SMTP server
+    address: "email-smtp.us-east-1.amazonaws.com", # or another SMTP server
     port: 587,
-    domain: "gmail.com",
-    authentication: "plain",
+    domain: "outlook.com",
+    # authentication: "plain",
     enable_starttls_auto: true,
-    user_name: ENV["GMAIL_USERNAME"],
-    password: ENV["GMAIL_PASSWORD"],
-    openssl_verify_mode:  'peer',
-    ssl:                  false,
-    tls:                  false,
-    ca_file:              Certifi.where
+    authentication:       :login,
+    user_name: ENV["SES_SMTP_USERNAME"],
+    password: ENV["SES_SMTP_PASSWORD"],
+    # openssl_verify_mode:  'peer',
+    # ssl:                  false,
+    # tls:                  false,
+    # ca_file:              Certifi.where
     }
 
 end

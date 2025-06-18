@@ -31,5 +31,6 @@ module BookingReminderBackend
     config.middleware.use ActionDispatch::Flash
     config.active_storage.variant_processor = :mini_magick
     config.active_storage.verify_integrity = false
+    config.active_job.queue_adapter = :sidekiq
   end
 end

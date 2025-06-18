@@ -1,0 +1,11 @@
+<h1>Welcome to Bookify, <%= @user.name %></h1>
+
+<p>
+  You have successfully signed up to Bookify, your username is: <%= @user.name %>.<br>
+</p>
+<p>
+  To login to the site, just follow this link:
+  <%= link_to 'Login', new_user_session_url %>.
+  <br>
+</p>
+<p>Thanks for joining and have a great day!</p>

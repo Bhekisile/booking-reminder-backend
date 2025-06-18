@@ -7,9 +7,6 @@ class ReminderJob < ApplicationJob
 
     message = "Hi #{client.name}, this is a reminder for your appointment on #{bookings.date.strftime('%A at %I:%M %p')}."
 
-    # Email reminder
-    # ReminderMailer.appointment_reminder(client, booking).deliver_now
-
     # SMS
     SmsPortalSender.send_sms(
       to: client.cellphone, # Should be like +27XXXXXXXXX

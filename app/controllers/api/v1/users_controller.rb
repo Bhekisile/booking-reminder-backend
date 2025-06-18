@@ -12,14 +12,16 @@ class Api::V1::UsersController < ApplicationController
     render json: @users
   end
 
-  # def new
-  #   @user = User.new
-  #   render json: @user
-  # end
-
   def current
     if current_user
-      render json: { user_id: current_user.id, email: current_user.email, name: current_user.name }
+      avatar_url = current_user.avatar.attached? ? url_for(current_user.avatar) : nil
+
+      render json: {
+        user_id: current_user.id,
+        email: current_user.email,
+        name: current_user.name,
+        avatar_url: avatar_url # <--- Send the URL, not the object
+      }
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized
     end
@@ -48,7 +50,8 @@ class Api::V1::UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      # UserMailer.signup_email(@user).deliver_later
+      UserMailer.with(user: user, token: token).welcome_email.deliver_later
+      # UserMailer.welcome_email(@user).deliver_later
       redirect_to root_path, notice: 'Account created!'
     else
       Rails.logger.error "User creation failed: #{@user.errors.full_messages.join(', ')}"
@@ -108,6 +111,20 @@ class Api::V1::UsersController < ApplicationController
       Rails.logger.error "Blob key: #{@user.avatar.blob&.key}"
       raise
     end
+  end
+
+  def destroy_avatar
+    # Check if an avatar is attached before attempting to purge
+    if @user.avatar.attached?
+      @user.avatar.purge # This deletes the file from S3 and the record from the database
+      render json: { message: "Avatar successfully deleted" }, status: :ok
+    else
+      render json: { error: "No avatar to delete" }, status: :not_found
+    end
+  rescue => e
+    # Catch any unexpected errors during deletion
+    Rails.logger.error "Error deleting avatar for user #{@user.id}: #{e.message}"
+    render json: { error: "Failed to delete avatar", details: e.message }, status: :internal_server_error
   end
 
   private

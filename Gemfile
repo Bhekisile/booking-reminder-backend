@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby "3.2.2"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.1.4"
+gem "rails", "~> 7.1.5"
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
@@ -72,3 +72,5 @@ gem "aws-sdk-s3", require: false
 
 
 
+
+gem "sidekiq", "~> 8.0"
