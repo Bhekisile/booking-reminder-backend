@@ -31,10 +31,10 @@ Rails.application.routes.draw do
 
       get 'bookings/monthly_counts', to: 'bookings#monthly_counts'
       get 'bookings/all', to: 'bookings#all'
-      get 'settings', to: 'settings#index'
       
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]
+      resources :settings, only: [:index, :show, :create, :update]
     end
   end 
 end
