@@ -33,6 +33,14 @@ user3 = User.create!(
   password_confirmation: "password789",
   )
 
+admin = User.create!(
+  name: "Admin User",
+  email: "admin@test.test",
+  password: "password123",
+  password_confirmation: "password123",
+  role: :admin
+)
+
 # Create clients
 client1 = Client.create!(name: "Zena", surname: "Jozi", cellphone: "+27722952952", email: "zena@test.test", user: user3)
 client2 = Client.create!(name: "Sarah", surname: "Doe", cellphone: "+27995554444", email: "sarah@test.test", user: user3)

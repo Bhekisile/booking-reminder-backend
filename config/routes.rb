@@ -26,6 +26,7 @@ Rails.application.routes.draw do
         delete :destroy_avatar, on: :member # NEW: Route for deleting avatar
         collection do
           get 'current' #GET /api/v1/users/current
+          get 'permissions', to: 'users#user_permissions' # GET /api/v1/users/permissions
         end
       end
 
@@ -36,5 +37,9 @@ Rails.application.routes.draw do
       resources :bookings, only: [:index, :show, :create, :update, :destroy]
       resources :settings, only: [:index, :show, :create, :update]
     end
-  end 
+  end
+
+  namespace :admin do
+    resources :dashboard, only: [:index]
+  end
 end

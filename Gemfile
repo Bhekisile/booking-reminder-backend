@@ -68,7 +68,7 @@ gem 'sendgrid-actionmailer'
 
 gem "aws-sdk-s3", require: false
 
-
+gem 'cancancan', '~> 3.0'
 
 
 

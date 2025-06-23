@@ -1,4 +1,6 @@
 class Api::V1::BookingsController < ApplicationController
+  # load_and_authorize_resource
+
   def index
     @bookings = Booking.includes(:client)
       .where("date >= ?", Date.today)
@@ -9,7 +11,7 @@ class Api::V1::BookingsController < ApplicationController
         @bookings = @bookings.joins(:client).where("LOWER(clients.name) LIKE ? OR LOWER(clients.surname) LIKE ?", query, query)
       end
 
-      @bookings = @bookings.paginate(page: params[:page], per_page: 6)
+      @bookings = @bookings.paginate(page: params[:page], per_page: 10)
 
     render json: {
       bookings: @bookings.as_json(include: { client: { only: [:name, :surname] } }),
@@ -81,6 +83,7 @@ class Api::V1::BookingsController < ApplicationController
 
   def update
     @booking = Booking.find(params[:id])
+    authorize! :update, @booking
     if @booking.update(update_params)
       render json: { message: 'Booking was successfully updated.', booking: @booking }, status: :ok
     else
@@ -90,7 +93,7 @@ class Api::V1::BookingsController < ApplicationController
 
   def destroy
     @booking = Booking.find(params[:id])
-    
+    authorize! :destroy, @booking
     # Store client ID before destroying the booking to check if client still exists after
     client_id = @booking.client_id
     
