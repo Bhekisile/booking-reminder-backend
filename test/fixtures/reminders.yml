@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  remind_at: 2025-04-22 16:03:53
+  message: MyString
+
+two:
+  remind_at: 2025-04-22 16:03:53
+  message: MyString

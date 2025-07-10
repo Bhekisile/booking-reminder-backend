@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  business_start: 2025-04-22 11:23:49
+  business_end: 2025-04-22 11:23:49
+  notification: false
+
+two:
+  business_start: 2025-04-22 11:23:49
+  business_end: 2025-04-22 11:23:49
+  notification: false
