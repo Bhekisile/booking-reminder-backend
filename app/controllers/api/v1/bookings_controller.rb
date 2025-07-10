@@ -100,6 +100,8 @@ class Api::V1::BookingsController < ApplicationController
     
     # Use destroy! to raise an exception if something goes wrong
     ActiveRecord::Base.transaction do
+      # First, delete any reminders associated with this booking
+      Reminder.where(booking_id: @booking.id).delete_all
       # Only delete the booking record, not any associated records
       result = Booking.where(id: params[:id]).delete_all
       

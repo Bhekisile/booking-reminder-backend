@@ -1,3 +1,3 @@
 class Reminder < ApplicationRecord
-  belongs_to :booking, dependent: :destroy
+  belongs_to :booking
 end
