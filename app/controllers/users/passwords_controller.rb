@@ -5,8 +5,8 @@ class Users::PasswordsController < Devise::PasswordsController
   def create
     user = User.find_by(email: params[:user][:email])
     if user
-      UserMailer.with(user: user, token: token).reset_password_email.deliver_later
-      # UserMailer.reset_password_email(user).deliver_later
+      # UserMailer.with(user).reset_password_email.deliver_later
+      UserMailer.reset_password_email(user).deliver_later
     end
     render json: { notice: "Check your email for reset instructions." }
   end
@@ -15,7 +15,7 @@ class Users::PasswordsController < Devise::PasswordsController
     begin
       token = params[:reset_password_token]
       User.find_signed!(token, purpose: "password_reset")
-      # redirect_to "http://localhost:8081/ResetPasswordScreen?token=#{token}"
+      redirect_to "booking-reminder-app-frontend://app/(auth)/ResetPasswordScreen?token=#{token}", allow_other_host: true
     rescue ActiveSupport::MessageVerifier::InvalidSignature
       render json: { error: "Token expired or invalid." }, status: :unauthorized
     end

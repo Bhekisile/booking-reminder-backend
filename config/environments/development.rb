@@ -168,6 +168,11 @@ Rails.application.configure do
     domain: "sandbox.smtp.mailtrap.io",
     authentication: "plain",
     user_name: ENV["MAILTRAP_USERNAME"],
-    password: ENV["MAILTRAP_PASSWORD"]
+    password: ENV["MAILTRAP_PASSWORD"],
+    # ssl: false,
+    # tls: true,
+    open_timeout: 10,
+    read_timeout: 10,
+    # openssl_verify_mode: OpenSSL::SSL::VERIFY_PEER
   }
 end

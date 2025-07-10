@@ -8,9 +8,9 @@ class ApplicationController < ActionController::API
     render json: { error: 'You are not authorized to perform this action' }, status: :forbidden
   end
 
-  def authenticate_user!
-    render json: { error: 'Unauthorized' }, status: :unauthorized unless current_user
-  end
+  # def authenticate_user!
+  #   render json: { error: 'Unauthorized' }, status: :unauthorized unless current_user
+  # end
 
   protected
   

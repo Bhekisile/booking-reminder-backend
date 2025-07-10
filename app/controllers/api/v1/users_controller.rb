@@ -4,12 +4,26 @@ class Api::V1::UsersController < ApplicationController
 
   before_action :authenticate_user!, only: [:update, :update_avatar, :current, :destroy]
   before_action :set_user, only: [:update, :update_avatar]
-  # protect_from_forgery with: :null_session
 
   # GET /api/v1/users
   def index
     @users = User.all
     render json: @users
+  end
+
+  def user_permissions
+    if current_user
+      permissions = {
+        can_create_booking: can?(:create, Booking),
+        can_view_own_bookings: can?(:read, Booking.new(user: current_user)), # Check if they can read a new booking associated with them
+        can_update_any_own_booking: can?(:update, Booking.new(user: current_user)), # Check if they can update any booking associated with them
+        can_delete_any_own_booking: can?(:destroy, Booking.new(user: current_user)), # Check if they can destroy any booking associated with them
+        can_view_all_bookings: can?(:read, Booking),
+      }
+      render json: permissions
+    else
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
   end
 
   def current
@@ -20,6 +34,7 @@ class Api::V1::UsersController < ApplicationController
         user_id: current_user.id,
         email: current_user.email,
         name: current_user.name,
+        role: current_user.role,
         avatar_url: avatar_url # <--- Send the URL, not the object
       }
     else
@@ -50,7 +65,7 @@ class Api::V1::UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      UserMailer.with(user: user, token: token).welcome_email.deliver_later
+      UserMailer.with(user: @user, token: token).welcome_email.deliver_later
       # UserMailer.welcome_email(@user).deliver_later
       redirect_to root_path, notice: 'Account created!'
     else

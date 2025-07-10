@@ -16,6 +16,7 @@ class Ability
       can [:create, :destroy, :update], Booking, id: user.id # Allow users to create and destroy their own bookings
       can :read, Booking # Allow users to read bookings
       #       can :manage, Booking, user_id: user.id
+      can :access, :premium_feature if user.subscription_status == 'active'
     end
   end
 end

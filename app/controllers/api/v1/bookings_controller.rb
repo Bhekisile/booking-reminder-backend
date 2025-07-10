@@ -37,12 +37,13 @@ class Api::V1::BookingsController < ApplicationController
     @booking = Booking.new(booking_params)
   
     if @booking.save
-      if params[:send_reminder]
+      if params[:reminder]
         # Send welcome message now
+        @settings = Setting.first
         Reminder.create!(
           booking: @booking,
           message_type: "welcome",
-          message: "Hi #{client.name}, your appointment is booked for #{formatted_date(@booking)}.",
+          message: "Hi #{@booking.client.name}, your appointment is booked for #{formatted_date(@booking)}.",
           remind_at: Time.current
         )
         # Send SMS reminder immediately
@@ -51,7 +52,7 @@ class Api::V1::BookingsController < ApplicationController
           message: "Hi #{@booking.client.name}, You have placed a booking with #{@settings.name}. Your appointment is booked for #{formatted_date(@booking)}. You can cancel your appointment at any time before your appointment date. Thank you."
         )
         # Schedule reminder message (using Sidekiq or ActiveJob)
-        ReminderJob.set(wait_until: @booking.date - 1.day).perform_later(@booking.id)
+        ReminderJob.set(wait_until: (@booking.date.to_time.in_time_zone - 1.day)).perform_later(@booking.id)
       end
   
       render json: @booking, status: :created

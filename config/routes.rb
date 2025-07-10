@@ -32,6 +32,9 @@ Rails.application.routes.draw do
 
       get 'bookings/monthly_counts', to: 'bookings#monthly_counts'
       get 'bookings/all', to: 'bookings#all'
+
+      post 'payments/initiate_payfast', to: 'payments#initiate_payfast'
+      post 'payfast/notify', to: 'payments#notify' # This is your IPN endpoint
       
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]

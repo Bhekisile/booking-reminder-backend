@@ -1,6 +1,6 @@
 class UserMailer < ApplicationMailer
-  # default from: "bhekisilejozi@gmail.com"
-  default from: 'no-reply@example.com'
+  # default to: "bhekisilejozi@gmail.com"
+  default from: 'noreply@example.com'
 
   def welcome_email
     @user = params[:user]
@@ -8,7 +8,7 @@ class UserMailer < ApplicationMailer
     @token = params[:token]
     # @token = user.signed_id(purpose: "signup", expires_in: 15.minutes)
     mail(to: @user.email, subject: 'Welcome to Bookify!')
-    # UserMailer.with(user: @user, token: @token).welcome_email.deliver_later
+    # mail subject: 'Welcome to Bookify!'
   end
 
   def reset_password_email(user)
