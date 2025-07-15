@@ -1,8 +1,8 @@
 PAYFAST_CONFIG = {
   merchant_id: ENV['PAYFAST_MERCHANT_ID'],
   merchant_key: ENV['PAYFAST_MERCHANT_KEY'],
-  return_url: 'http://localhost:8081/subscription/SubscriptionSuccessScreen',
-  cancel_url: 'http://localhost:8081',
-  notify_url: 'http://localhost:3001/api/v1/payfast/itn',
+  return_url: 'https://booking-reminder.expo.app/subscription/SubscriptionSuccessScreen',
+  cancel_url: 'https://booking-reminder.expo.app',
+  notify_url: 'https://booking-reminder-backend.onrender.com/api/v1/payfast/itn',
   passphrase: ENV['PAYFAST_PASSPHRASE']
 }
