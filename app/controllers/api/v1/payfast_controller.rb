@@ -1,5 +1,5 @@
 class Api::V1::PayfastController < ApplicationController
-  skip_before_action :verify_authenticity_token
+  skip_before_action :verify_authenticity_token, raise: false
 
   def itn
     user_id = params[:custom_str1]
