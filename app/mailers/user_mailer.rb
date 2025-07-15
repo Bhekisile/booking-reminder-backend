@@ -1,6 +1,5 @@
 class UserMailer < ApplicationMailer
-  # default to: "bhekisilejozi@gmail.com"
-  default from: 'noreply@example.com'
+  default from: 'noreply@https://booking-reminder-backend.onrender.com'
 
   def welcome_email
     @user = params[:user]

@@ -15,7 +15,7 @@ class Users::PasswordsController < Devise::PasswordsController
     begin
       token = params[:reset_password_token]
       User.find_signed!(token, purpose: "password_reset")
-      redirect_to "booking-reminder-app-frontend://app/(auth)/ResetPasswordScreen?token=#{token}", allow_other_host: true
+      redirect_to "https://booking-reminder.expo.app/ResetPasswordScreen?token=#{token}", allow_other_host: true
     rescue ActiveSupport::MessageVerifier::InvalidSignature
       render json: { error: "Token expired or invalid." }, status: :unauthorized
     end

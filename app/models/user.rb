@@ -11,9 +11,9 @@ class User < ApplicationRecord
   has_many :clients, dependent: :destroy
   has_one :setting, dependent: :destroy
   has_one_attached :avatar
+  has_one :subscription
   
   validates :name, presence: true, uniqueness: true
   
   enum role: { user: 'user', admin: 'admin' }
-  enum subscription_status: { inactive: 0, active: 1 }
 end
