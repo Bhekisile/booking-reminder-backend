@@ -90,13 +90,14 @@ Rails.application.configure do
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
   config.action_mailer.perform_deliveries = true
-  config.action_mailer.default_url_options = { host: 'https://booking-reminder-backend.onrender.com' }
+  config.action_mailer.default_url_options = { host: 'booking-reminder-backend.onrender.com', protocol: 'https' }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: "email-smtp.us-east-1.amazonaws.com", # or another SMTP server
+    address: "smtp.postmarkapp.com", # or another SMTP server
     port: 587,
+    domain: "booking-reminder-backend.onrender.com",
     enable_starttls_auto: true,
-    authentication:       :login,
+    authentication:       :plain,
     user_name: ENV["SES_SMTP_USERNAME"],
     password: ENV["SES_SMTP_PASSWORD"]
     }
