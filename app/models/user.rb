@@ -10,8 +10,8 @@ class User < ApplicationRecord
   
   has_many :clients, dependent: :destroy
   has_one :setting, dependent: :destroy
-  has_one_attached :avatar
   has_one :subscription
+  has_one_attached :avatar
   
   validates :name, presence: true, uniqueness: true
   
