@@ -4,7 +4,22 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   before_action :configure_sign_up_params, only: [:create]
 
+    def create
+    @user = User.new(user_params)
+    if @user.save
+      UserMailer.welcome_email(@user).deliver_later
+      render json: { notice: "Account created!" }
+    else
+      Rails.logger.error "User creation failed: #{@user.errors.full_messages.join(', ')}"
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
+
+  def user_params
+    params.require(:user).permit(:name, :email, :password, :password_confirmation)
+  end
 
   def configure_sign_up_params
     devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :email, :password, :password_confirmation])

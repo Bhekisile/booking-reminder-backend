@@ -4,17 +4,26 @@ class Users::SessionsController < Devise::SessionsController
   include RackSessionsFix
   respond_to :json
 
-  private
-
-  def respond_with(current_user, _opts = {})
-    token = Warden::JWTAuth::UserEncoder.new.call(current_user, :user, request.headers['Authorization'])
-    render json: {
-      status: {
-        code: 200, message: 'Logged in successfully.',
-        data: { user: UserSerializer.new(current_user).serializable_hash[:data][:attributes].merge(token: token) }
-      }
-    }, status: :ok
+  def create
+    current_user = User.find_by(email: params[:user][:email])
+    if current_user && current_user.valid_password?(params[:user][:password])
+      if current_user.email_confirmed?
+        sign_in current_user
+        # Generate JWT token
+        token = Warden::JWTAuth::UserEncoder.new.call(current_user, :user, request.headers['Authorization'])
+        render json: {
+          status: { code: 200, message: 'Logged in successfully.' },
+          data: UserSerializer.new(current_user).serializable_hash[:data][:attributes].merge(token: token)
+        }, status: :ok
+      else
+        render json: { error: 'Email not confirmed. Please check your inbox.' }, status: :unauthorized
+      end
+    else
+      render json: { error: 'Invalid email or password.' }, status: :unauthorized
+    end
   end
+
+  private
 
   def respond_to_on_destroy
     if request.headers['Authorization'].present?

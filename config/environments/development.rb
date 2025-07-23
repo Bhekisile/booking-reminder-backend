@@ -62,7 +62,7 @@ Rails.application.configure do
 
   # Annotate rendered view with file names.
   # config.action_view.annotate_rendered_view_with_filenames = true
-
+  config.active_job.queue_adapter = :inline
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
   # Raise error when a before_action's only/except options reference missing actions
@@ -71,19 +71,22 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: 'localhost', port: 3001 }
 
   config.action_mailer.delivery_method = :smtp
+  # config.action_mailer.delivery_method = :letter_opener
+  # config.action_mailer.postmark_settings = { api_token: ENV['POSTMARK_API_TOKEN'] }
+  config.action_mailer.perform_deliveries = true
   
   # Option 3: Port 2525 (Alternative - uncomment if needed)
   config.action_mailer.smtp_settings = {
     address: "sandbox.smtp.mailtrap.io",
     port: 2525,
-    domain: "sandbox.smtp.mailtrap.io",
-    authentication: "plain",
+    host: "sandbox.smtp.mailtrap.io",
+    authentication: "login",
     user_name: ENV["MAILTRAP_USERNAME"],
     password: ENV["MAILTRAP_PASSWORD"],
     # ssl: false,
     # tls: true,
-    open_timeout: 10,
-    read_timeout: 10,
+    # open_timeout: 10,
+    # read_timeout: 10,
     # openssl_verify_mode: OpenSSL::SSL::VERIFY_PEER
   }
 end

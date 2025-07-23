@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       resources :users, only: [] do
         patch :update_avatar, on: :member # PATCH /api/v1/users/:id/avatar
         delete :destroy_avatar, on: :member # NEW: Route for deleting avatar
+        get :confirm_email, on: :member # GET /api/v1/users/:id/confirm_email
         collection do
           get 'current' #GET /api/v1/users/current
           get 'permissions', to: 'users#user_permissions' # GET /api/v1/users/permissions
