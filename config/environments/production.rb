@@ -91,14 +91,15 @@ Rails.application.configure do
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
   config.action_mailer.perform_deliveries = true
   config.action_mailer.default_url_options = { host: 'booking-reminder-backend.onrender.com', protocol: 'https' }
-  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.delivery_method = :postmark
+  config.action_mailer.postmark_settings = { api_token: ENV['POSTMARK_API_TOKEN'] }
   config.action_mailer.smtp_settings = {
     address: "smtp.postmarkapp.com", # or another SMTP server
     port: 587,
     domain: "booking-reminder-backend.onrender.com",
     enable_starttls_auto: true,
     authentication:       :plain,
-    user_name: ENV["SES_SMTP_USERNAME"],
-    password: ENV["SES_SMTP_PASSWORD"]
+    user_name: ENV["POSTMARK_API_TOKEN"],
+    password: ENV["POSTMARK_API_TOKEN"]
     }
 end

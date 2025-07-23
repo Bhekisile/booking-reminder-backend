@@ -70,7 +70,7 @@ gem "aws-sdk-s3", require: false
 
 gem 'cancancan', '~> 3.0'
 
-
+gem 'postmark-rails'
 
 
 gem "sidekiq", "~> 8.0"

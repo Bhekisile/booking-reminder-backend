@@ -11,6 +11,28 @@ class Api::V1::UsersController < ApplicationController
     render json: @users
   end
 
+  # GET /api/v1/users/1
+  def show
+    user = User.find(params[:id])
+    avatar_url = user.avatar.attached? ? url_for(user.avatar) : nil
+
+    render json: {
+      id: user.id,
+      name: user.name,
+      avatar_url: avatar_url
+    }
+  end
+
+  def confirm_email
+    user = User.find_by(confirm_token: params[:id])
+    if user
+      user.email_activate
+      render json: { message: "Email confirmed successfully. You can now log in." }, status: :ok
+    else
+      render json: { error: "Invalid or expired confirmation token." }, status: :unprocessable_entity
+    end
+  end
+
   def user_permissions
     if current_user
       permissions = {
@@ -42,35 +64,12 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
-  # GET /api/v1/users/1
-  def show
-    user = User.find(params[:id])
-    avatar_url = user.avatar.attached? ? url_for(user.avatar) : nil
-
-    render json: {
-      id: user.id,
-      name: user.name,
-      avatar_url: avatar_url
-    }
-  end
-
+  # sign out the user
   def destroy
     if current_user.destroy
       render json: { message: 'Account deleted successfully.' }
     else
       render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity
-    end
-  end
-
-  def create
-    @user = User.new(user_params)
-    if @user.save
-      UserMailer.with(user: @user, token: token).welcome_email.deliver_later
-      # UserMailer.welcome_email(@user).deliver_later
-      redirect_to root_path, notice: 'Account created!'
-    else
-      Rails.logger.error "User creation failed: #{@user.errors.full_messages.join(', ')}"
-      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
