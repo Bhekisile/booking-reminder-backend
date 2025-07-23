@@ -24,11 +24,32 @@ class User < ApplicationRecord
     save!(:validate => false)
   end
 
+  def send_password_reset
+    self.reset_password_token = generate_base64_token
+    self.reset_password_sent_at = Time.current
+    save!(:validate => false)
+    UserMailer.reset_password_email(self, self.reset_password_token).deliver_later
+  end
+
+  def password_token_valid?
+    self.reset_password_sent_at && self.reset_password_sent_at > 15.minutes.ago
+  end
+
+  def reset_password(password)
+    self.password = password
+    self.reset_password_token = nil
+    save!
+  end
+
   private
 
   def confirmation_token
     if self.confirm_token.blank?
       self.confirm_token = SecureRandom.urlsafe_base64.to_s
     end
+  end
+
+  def generate_base64_token
+    test = SecureRandom.urlsafe_base64.to_s
   end
 end
