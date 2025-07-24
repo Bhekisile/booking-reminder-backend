@@ -95,7 +95,7 @@ Rails.application.configure do
   config.action_mailer.postmark_settings = { api_token: ENV['POSTMARK_API_TOKEN'] }
   config.action_mailer.smtp_settings = {
     address: "smtp.postmarkapp.com", # or another SMTP server
-    port: 587,
+    port: 2525,
     domain: "booking-reminder-backend.onrender.com",
     enable_starttls_auto: true,
     authentication:       :plain,
