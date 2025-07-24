@@ -32,7 +32,7 @@ class User < ApplicationRecord
   end
 
   def password_token_valid?
-    self.reset_password_sent_at && self.reset_password_sent_at > 15.minutes.ago
+    self.reset_password_sent_at && self.reset_password_sent_at > 1.hours.ago
   end
 
   def reset_password(password)

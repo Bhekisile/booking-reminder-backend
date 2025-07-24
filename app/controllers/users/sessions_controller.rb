@@ -5,15 +5,15 @@ class Users::SessionsController < Devise::SessionsController
   respond_to :json
 
   def create
-    current_user = User.find_by(email: params[:user][:email])
-    if current_user && current_user.valid_password?(params[:user][:password])
-      if current_user.email_confirmed?
-        sign_in current_user
+    user = User.find_by(email: params[:user][:email])
+    if user && user.valid_password?(params[:user][:password])
+      if user.email_confirmed?
+        sign_in user
         # Generate JWT token
-        token = Warden::JWTAuth::UserEncoder.new.call(current_user, :user, request.headers['Authorization'])
+        token = Warden::JWTAuth::UserEncoder.new.call(user, :user, request.headers['Authorization'])
         render json: {
           status: { code: 200, message: 'Logged in successfully.' },
-          data: UserSerializer.new(current_user).serializable_hash[:data][:attributes].merge(token: token)
+          data: UserSerializer.new(user).serializable_hash[:data][:attributes].merge(token: token)
         }, status: :ok
       else
         render json: { error: 'Email not confirmed. Please check your inbox.' }, status: :unauthorized

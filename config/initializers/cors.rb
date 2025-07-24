@@ -10,8 +10,8 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     # Allow requests from any origin
     # This is useful for development, but in production, you should specify the allowed origins.
     # For example, to allow requests from 'https://example.com':
-    # origins '*'
-    origins "https://booking-reminder.expo.app"
+    # origins '*', 'https://booking-reminder--jij8cp8siz.expo.app', 'https://booking-reminder.expo.app'
+    origins "https://booking-reminder--jij8cp8siz.expo.app"
 
     resource "*",
       headers: :any,
