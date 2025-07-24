@@ -2,23 +2,12 @@ class ReminderJob < ApplicationJob
   queue_as :default
 
   def perform(booking_id)
-    booking = Booking.find(booking_id)
-    client = booking.client
+    booking = Booking.find_by(id: booking_id)
+    return unless booking && booking.date.future?
 
-    message = "Hi #{client.name}, this is a reminder for your appointment on #{bookings.date.strftime('%A at %I:%M %p')}."
-
-    # SMS
     SmsPortalSender.send_sms(
-      to: client.cellphone, # Should be like +27XXXXXXXXX
-      message: message
-    )
-
-    # Save message record
-    Reminder.create!(
-      booking: booking,
-      message_type: "reminder_sms",
-      message: "SMS reminder sent to #{client.cellphone} for #{bookings.date.strftime('%A at %I:%M %p')}",
-      remind_at: Time.current
+      to: booking.client.cellphone,
+      message: "Hi #{booking.client.name}, just a reminder that you have an appointment tomorrow with #{@settings.name} on #{formatted_date(booking)}. Thank you!"
     )
   end
 end
