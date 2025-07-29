@@ -28,7 +28,6 @@ class Api::V1::UsersController < ApplicationController
     if user
       user.email_activate
       render json: { message: "Email confirmed successfully. You can now log in." }, status: :ok
-      # redirect_to "https://booking-reminder.expo.app/login", allow_other_host: true
     else
       render json: { error: "Invalid or expired confirmation token." }, status: :unprocessable_entity
     end

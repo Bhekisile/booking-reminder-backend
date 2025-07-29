@@ -31,6 +31,7 @@ user3 = User.create!(
   email: "girly@test.test",
   password: "password789",
   password_confirmation: "password789",
+  email_confirmed: true,
   )
 
 admin = User.create!(
@@ -38,7 +39,8 @@ admin = User.create!(
   email: "admin@test.test",
   password: "password123",
   password_confirmation: "password123",
-  role: :admin
+  role: :admin,
+  email_confirmed: true,
 )
 
 # Create clients

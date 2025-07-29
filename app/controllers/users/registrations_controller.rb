@@ -8,6 +8,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     @user = User.new(user_params)
     if @user.save
       UserMailer.welcome_email(@user).deliver_later
+      # redirect_to new_user_session_path, notice: "Account created successfully!"
       render json: { notice: "Account created!" }
     else
       Rails.logger.error "User creation failed: #{@user.errors.full_messages.join(', ')}"
@@ -18,11 +19,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
   private
 
   def user_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    params.require(:user).permit(:name, :email, :password, :password_confirmation, :organization_id)
   end
 
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :email, :password, :password_confirmation])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :email, :password, :password_confirmation, :organization_id])
   end
 
   def respond_with(current_user, _opts = {})

@@ -1,11 +1,13 @@
 class Api::V1::SettingsController < ApplicationController
+  before_action :authenticate_user!
+
   def index
-    @settings = Setting.all
+    @settings = Setting.where(user_id: current_user.id)
     render json: @settings
   end
 
   def show
-    render json: Setting.find(params[:id])
+    render json: @setting
   end
 
   def create
@@ -18,6 +20,10 @@ class Api::V1::SettingsController < ApplicationController
   end
 
   def update
+    unless current_user.organization
+      return
+    end
+
     @setting = Setting.find(params[:id])
     if @setting.update(setting_params)
       render json: @setting, status: :ok

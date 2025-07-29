@@ -39,7 +39,7 @@ Rails.application.routes.draw do
       
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]
-      resources :settings, only: [:index, :show, :create, :update]
+      resources :organizations, only: [:index, :show, :create, :update]
     end
   end
 

@@ -10,10 +10,13 @@ class User < ApplicationRecord
   :jwt_authenticatable, jwt_revocation_strategy: self
   
   has_many :clients, dependent: :destroy
-  has_one :setting, dependent: :destroy
+  # has_one :setting, dependent: :destroy
   has_one :subscription
   has_one_attached :avatar
-  
+
+  belongs_to :organization, optional: true # A user might not belong to an organization initially, or ever
+  has_many :bookings # Users still have their own bookings, but these bookings will also be linked to an organization
+
   validates :name, presence: true, uniqueness: true
   
   enum role: { user: 'user', admin: 'admin' }

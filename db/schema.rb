@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_23_033940) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_29_095605) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -52,7 +52,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_033940) do
     t.decimal "price"
     t.text "notes"
     t.boolean "reminder", default: false
+    t.bigint "organization_id"
     t.index ["client_id"], name: "index_bookings_on_client_id"
+    t.index ["organization_id"], name: "index_bookings_on_organization_id"
   end
 
   create_table "clients", force: :cascade do |t|
@@ -67,6 +69,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_033940) do
     t.index ["user_id"], name: "index_clients_on_user_id"
   end
 
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "setting_id", null: false
+    t.string "email"
+    t.datetime "business_start"
+    t.datetime "business_end"
+    t.string "address1"
+    t.string "address2"
+    t.string "phone"
+    t.bigint "user_id", null: false
+    t.index ["name"], name: "index_organizations_on_name", unique: true
+    t.index ["setting_id"], name: "index_organizations_on_setting_id"
+    t.index ["user_id"], name: "index_organizations_on_user_id"
+  end
+
   create_table "reminders", force: :cascade do |t|
     t.datetime "remind_at", null: false
     t.text "message", null: false
@@ -75,20 +94,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_033940) do
     t.datetime "updated_at", null: false
     t.string "message_type"
     t.index ["booking_id"], name: "index_reminders_on_booking_id"
-  end
-
-  create_table "settings", force: :cascade do |t|
-    t.time "business_start", null: false
-    t.time "business_end", null: false
-    t.bigint "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "name"
-    t.string "address1"
-    t.string "address2"
-    t.string "phone"
-    t.string "email"
-    t.index ["user_id"], name: "index_settings_on_user_id"
   end
 
   create_table "subscriptions", force: :cascade do |t|
@@ -114,16 +119,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_23_033940) do
     t.string "role", default: "user"
     t.boolean "email_confirmed", default: false
     t.string "confirm_token"
+    t.bigint "organization_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
+    t.index ["organization_id"], name: "index_users_on_organization_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bookings", "clients"
+  add_foreign_key "bookings", "organizations"
   add_foreign_key "clients", "users"
+  add_foreign_key "organizations", "users"
   add_foreign_key "reminders", "bookings"
-  add_foreign_key "settings", "users"
   add_foreign_key "subscriptions", "users"
+  add_foreign_key "users", "organizations"
 end
