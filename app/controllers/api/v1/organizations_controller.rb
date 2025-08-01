@@ -1,12 +1,15 @@
 # app/controllers/api/v1/organizations_controller.rb
 class Api::V1::OrganizationsController < ApplicationController
-  # You might want to add authentication here, e.g., only admins can create organizations
-  before_action :authenticate_user! # :authorize_admin!  Assuming an authorize_admin! method
 
   # GET /api/v1/organizations
   def index
-    @organization = Organization.where(user_id: current_user.id)
-    render json: @organization
+    @organization = current_user.organization
+    if @organization.nil?
+      render json: { error: "You do not belong to an organization." }, status: :forbidden
+      return
+    else
+      render json: @organization
+    end
   end
 
   # POST /api/v1/organizations
@@ -41,6 +44,6 @@ class Api::V1::OrganizationsController < ApplicationController
   private
 
   def organization_params
-    params.require(:organization).permit(:business_start, :business_end, :name, :address1, :address2, :phone, :email, :user_id)
+    params.require(:organization).permit(:business_start, :business_end, :name, :address1, :address2, :phone, :email)
   end
 end

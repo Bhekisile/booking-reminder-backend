@@ -7,7 +7,7 @@ class Api::V1::UsersController < ApplicationController
 
   # GET /api/v1/users
   def index
-    @users = User.all
+    @users = current_user.organization.users
     render json: @users
   end
 
@@ -57,7 +57,9 @@ class Api::V1::UsersController < ApplicationController
         email: current_user.email,
         name: current_user.name,
         role: current_user.role,
-        avatar_url: avatar_url # <--- Send the URL, not the object
+        avatar_url: avatar_url, # <--- Send the URL, not the object
+        organization_id: current_user.organization_id,
+        # organization_name: current_user.organization&.name # Use safe navigation to avoid nil errors
       }
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized

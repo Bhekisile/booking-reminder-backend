@@ -48,6 +48,6 @@ class Api::V1::ClientsController < ApplicationController
   private
   
   def client_params
-    params.require(:client).permit(:name, :surname, :cellphone, :whatsapp, :email, :user_id)
+    params.require(:client).permit(:name, :surname, :cellphone, :whatsapp, :email, :user_id, :organization_id)
   end
 end
