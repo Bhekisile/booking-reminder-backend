@@ -1,8 +1,21 @@
-# app/controllers/api/v1/organizations_controller.rb
 class Api::V1::OrganizationsController < ApplicationController
+  before_action :authenticate_user!
+
+  # Set the organization for show, update, and destroy actions
+  before_action :set_organization, only: [:show, :update]
+
+  # GET /api/v1/organizations/:id
+  def set_organization
+    @organization = Organization.find_by(id: params[:id])
+    unless @organization
+      render json: { error: "Organization not found" }, status: :not_found
+    end
+  end
 
   # GET /api/v1/organizations
   def index
+    @current_user ||= User.find_by(id: session[:user_id]) || User.find_by(id: request.headers['Authorization'])
+
     @organization = current_user.organization
     if @organization.nil?
       render json: { error: "You do not belong to an organization." }, status: :forbidden
@@ -14,8 +27,16 @@ class Api::V1::OrganizationsController < ApplicationController
 
   # POST /api/v1/organizations
    def create
+    @current_user ||= User.find_by(id: session[:user_id]) || User.find_by(id: request.headers['Authorization'])
+  
+    if current_user.organization.present?
+      render json: { error: "You already belong to an organization." }, status: :forbidden
+      return
+    end
+
     @organization = Organization.new(organization_params)
     if @organization.save
+      current_user.update(organization: @organization) # associate user
       render json: @organization, status: :created
     else
       render json: @organization.errors, status: :unprocessable_entity

@@ -6,7 +6,6 @@ class Api::V1::BookingsController < ApplicationController
   # This action should only show bookings belonging to the current user's organization.
   def index
     unless current_user.organization
-      render json: { error: "You do not belong to an organization." }, status: :forbidden
       return
     end
 
@@ -40,7 +39,6 @@ class Api::V1::BookingsController < ApplicationController
   # GET /api/v1/bookings/:id
   # This action should only show a specific booking if it belongs to the current user's organization.
   def show
-    # @booking is already set and authorized by `set_booking` and `authorize!`
     render json: @booking
   end
 
@@ -51,11 +49,8 @@ class Api::V1::BookingsController < ApplicationController
       render json: { error: "You must belong to an organization to create bookings." }, status: :forbidden
       return
     else
-      # Build booking associated with client and their organization
-      # @booking = client.bookings.build(booking_params.merge(organization: current_user.organization))
       @booking = Booking.new(booking_params)
       @organization = current_user.organization
-      # authorize! :create, @booking # Authorize the creation of the booking
 
       if @booking.save
         if params[:reminder]
@@ -146,7 +141,6 @@ class Api::V1::BookingsController < ApplicationController
   # This method will find the booking and then use CanCanCan's `authorize!`
   # to check if the current user has permission for the requested action on this booking.
   def set_booking
-    # Ensure the current user belongs to an organization
     unless current_user.organization
       render json: { error: "You do not belong to an organization and cannot access organization-scoped data." }, status: :forbidden
       return

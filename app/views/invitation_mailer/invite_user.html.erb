@@ -1,0 +1,17 @@
+<p>Hello <%= @invitation.name %>,</p>
+
+<h1>You have been invited to join <%= @invitation.organization.name %></h1>
+<p>
+  Please use the organization ID <%= @invitation.organization.id %>, your email and a password to sign up by clicking the link below.
+</p>
+
+<p>
+  <a href="<%= @url %>">Accept Invitation</a>
+</p>
+
+<p>If you did not expect this, you can ignore this email.</p>
+
+<p>Best regards,</p>
+
+<p>Your Organization Team</p>
+<p><%= @invitation.organization.name %></p>
