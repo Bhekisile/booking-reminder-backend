@@ -10,10 +10,13 @@ class User < ApplicationRecord
   :jwt_authenticatable, jwt_revocation_strategy: self
   
   has_many :clients, dependent: :destroy
-  has_one :setting, dependent: :destroy
+  has_many :bookings, dependent: :destroy # Users still have their own bookings, but these bookings will also be linked to an organization
+
   has_one :subscription
   has_one_attached :avatar
-  
+
+  belongs_to :organization, optional: true # A user might not belong to an organization initially, or ever
+
   validates :name, presence: true, uniqueness: true
   
   enum role: { user: 'user', admin: 'admin' }
@@ -32,7 +35,7 @@ class User < ApplicationRecord
   end
 
   def password_token_valid?
-    self.reset_password_sent_at && self.reset_password_sent_at > 1.hours.ago
+    self.reset_password_sent_at && self.reset_password_sent_at > 5.hours.ago
   end
 
   def reset_password(password)

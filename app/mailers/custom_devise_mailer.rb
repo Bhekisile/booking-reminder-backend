@@ -12,9 +12,4 @@ class CustomDeviseMailer < Devise::Mailer
     @token = token
     devise_mail(record, :reset_password_instructions, opts)
   end
-
-  # def reset_password_instructions(record, token, opts = {})
-  #   opts[:redirect_url] = "bookify://reset-password?token=#{token}"
-  #   super
-  # end
 end

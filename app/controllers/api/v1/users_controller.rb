@@ -7,7 +7,7 @@ class Api::V1::UsersController < ApplicationController
 
   # GET /api/v1/users
   def index
-    @users = User.all
+    @users = current_user.organization.users
     render json: @users
   end
 
@@ -27,10 +27,10 @@ class Api::V1::UsersController < ApplicationController
     user = User.find_by(confirm_token: params[:id])
     if user
       user.email_activate
-      render json: { message: "Email confirmed successfully. You can now log in." }, status: :ok
-      # redirect_to "https://booking-reminder.expo.app/login", allow_other_host: true
+      
+      redirect_to "#{ENV['FRONTEND_URL']}/login?confirmed=true", allow_other_host: true
     else
-      render json: { error: "Invalid or expired confirmation token." }, status: :unprocessable_entity
+      redirect_to "#{ENV['FRONTEND_URL']}/login?error=invalid_token", allow_other_host: true
     end
   end
 
@@ -58,7 +58,8 @@ class Api::V1::UsersController < ApplicationController
         email: current_user.email,
         name: current_user.name,
         role: current_user.role,
-        avatar_url: avatar_url # <--- Send the URL, not the object
+        avatar_url: avatar_url, # <--- Send the URL, not the object
+        organization_id: current_user.organization_id,
       }
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized

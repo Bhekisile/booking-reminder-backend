@@ -10,6 +10,9 @@ Rails.application.routes.draw do
     passwords: 'users/passwords',
   }
 
+  devise_scope :user do
+    post 'users/registrations/create_member', to: 'users/registrations#create_member'
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -18,6 +21,10 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#index"
+
+  namespace :admin do
+    resources :dashboard, only: [:index]
+  end
 
   namespace :api do
     namespace :v1 do
@@ -34,16 +41,15 @@ Rails.application.routes.draw do
       get 'bookings/monthly_counts', to: 'bookings#monthly_counts'
       get 'bookings/all', to: 'bookings#all'
 
-      post 'subscriptions/create_payment_url', to: 'subscriptions#create_payment_url'
-      post 'payfast/itn', to: 'payfast#itn' # This is your IPN endpoint
+      # post 'subscriptions/create_payment_url', to: 'subscriptions#create_payment_url'
+      # post 'payfast/itn', to: 'payfast#itn' # This is your IPN endpoint
       
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]
-      resources :settings, only: [:index, :show, :create, :update]
+      resources :organizations, only: [:index, :show, :create, :update]
+      resources :invitations, only: [:create] # POST /api/v1/invitations
+      resources :subscriptions, only: [:create_payment_url]
+      resources :payfast, only: [:itn] # POST /api/v1/itn
     end
-  end
-
-  namespace :admin do
-    resources :dashboard, only: [:index]
   end
 end

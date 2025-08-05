@@ -14,7 +14,7 @@
 User.destroy_all
 Booking.destroy_all
 Client.destroy_all
-Setting.destroy_all
+Organization.destroy_all
 Reminder.destroy_all
 
 # Create user
@@ -25,12 +25,25 @@ Reminder.destroy_all
 #   password_confirmation: "password123",
 #   )
 
+# Create organizations
+org1 = Organization.create!(
+  business_start: "09:00",
+  business_end: "17:00",
+  name: "The Star",
+  address1: "123 Main St",
+  address2: "Suite 100, Cityville",
+  phone: "123-456-7890",
+  email: "thestar@example.com",
+)
+
 # Create user
 user3 = User.create!(
   name: "Girly Lady",
   email: "girly@test.test",
   password: "password789",
   password_confirmation: "password789",
+  email_confirmed: true,
+  organization: org1
   )
 
 admin = User.create!(
@@ -38,22 +51,24 @@ admin = User.create!(
   email: "admin@test.test",
   password: "password123",
   password_confirmation: "password123",
-  role: :admin
+  role: :admin,
+  email_confirmed: true,
+  organization: org1
 )
 
 # Create clients
-client1 = Client.create!(name: "Zena", surname: "Jozi", cellphone: "+27722952952", email: "zena@test.test", user: user3)
-client2 = Client.create!(name: "Sarah", surname: "Doe", cellphone: "+27995554444", email: "sarah@test.test", user: user3)
-client3 = Client.create!(name: "Deborah", surname: "Smith", cellphone: "+27995566444", email: "deb@test.test", user: user3)
-client4 = Client.create!(name: "Lee", surname: "Wright", cellphone: "+27995554774", email: "lee@test.test", user: user3)
-client5 = Client.create!(name: "Chang", surname: "Chi", cellphone: "+27995554488", email: "chang@test.test", user: user3)
-client6 = Client.create!(name: "Girly", surname: "Zuma", cellphone: "+27855554444", email: "girly@test.test", user: user3)
-client7 = Client.create!(name: "Norah", surname: "Ndlovu", cellphone: "+27977554444", email: "norah@test.test", user: user3)
-client8 = Client.create!(name: "Luios", surname: "Brown", cellphone: "+27995884444", email: "luios@test.test", user: user3)
-client9 = Client.create!(name: "Fred", surname: "Nel", cellphone: "+27995559944", email: "fred@test.test", user: user3)
-client10 = Client.create!(name: "John", surname: "Bright", cellphone: "+27995554004", email: "john@test.test", user: user3)
-client11 = Client.create!(name: "Matthew", surname: "Breakfast", cellphone: "+27995554411", email: "matt@test.test", user: user3)
-client12 = Client.create!(name: "Lovebird", surname: "More", cellphone: "+27989554444", email: "more@test.test", user: user3)
+client1 = Client.create!(name: "Zena", surname: "Jozi", cellphone: "+27722952952", email: "zena@test.test", user: user3, organization: org1)
+client2 = Client.create!(name: "Sarah", surname: "Doe", cellphone: "+27995554444", email: "sarah@test.test", user: user3, organization: org1)
+client3 = Client.create!(name: "Deborah", surname: "Smith", cellphone: "+27995566444", email: "deb@test.test", user: user3, organization: org1)
+client4 = Client.create!(name: "Lee", surname: "Wright", cellphone: "+27995554774", email: "lee@test.test", user: user3, organization: org1)
+client5 = Client.create!(name: "Chang", surname: "Chi", cellphone: "+27995554488", email: "chang@test.test", user: user3, organization: org1)
+client6 = Client.create!(name: "Girly", surname: "Zuma", cellphone: "+27855554444", email: "girly@test.test", user: user3, organization: org1)
+client7 = Client.create!(name: "Norah", surname: "Ndlovu", cellphone: "+27977554444", email: "norah@test.test", user: user3, organization: org1)
+client8 = Client.create!(name: "Luios", surname: "Brown", cellphone: "+27995884444", email: "luios@test.test", user: user3, organization: org1)
+client9 = Client.create!(name: "Fred", surname: "Nel", cellphone: "+27995559944", email: "fred@test.test", user: admin, organization: org1)
+client10 = Client.create!(name: "John", surname: "Bright", cellphone: "+27995554004", email: "john@test.test", user: admin, organization: org1)
+client11 = Client.create!(name: "Matthew", surname: "Breakfast", cellphone: "+27995554411", email: "matt@test.test", user: admin, organization: org1)
+client12 = Client.create!(name: "Lovebird", surname: "More", cellphone: "+27989554444", email: "more@test.test", user: admin, organization: org1)
 
 # Create bookings
 Booking.create!(
@@ -63,6 +78,8 @@ Booking.create!(
   price: "R200.00",
   payment: true,
   notes: "Haircut appointment",
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -71,7 +88,9 @@ Booking.create!(
   client_id: client2.id,
   price: "R150.00",
   notes: "Nail appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -80,7 +99,9 @@ Booking.create!(
   client_id: client3.id,
   price: "R280.00",
   notes: "Hair treatment appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -89,7 +110,9 @@ Booking.create!(
   client_id: client12.id,
   price: "R280.00",
   notes: "Hair treatment appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -98,7 +121,9 @@ Booking.create!(
   client_id: client4.id,
   price: "R450.00",
   notes: "Hair treatment appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -107,7 +132,9 @@ Booking.create!(
   client_id: client5.id,
   price: "R150.00",
   notes: "Nail appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -116,7 +143,9 @@ Booking.create!(
   client_id: client6.id,
   price: "R150.00",
   notes: "Nail appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -125,7 +154,9 @@ Booking.create!(
   client_id: client7.id,
   price: "R550.00",
   notes: "Mathematics tutoring",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -134,7 +165,9 @@ Booking.create!(
   client_id: client8.id,
   price: "R650.00",
   notes: "Information technology tutoring",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: user3
 )
 
 Booking.create!(
@@ -143,7 +176,9 @@ Booking.create!(
   client_id: client9.id,
   price: "R150.00",
   notes: "Nail appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: admin
 )
 
 Booking.create!(
@@ -152,7 +187,9 @@ Booking.create!(
   client_id: client10.id,
   price: "R150.00",
   notes: "Nail appointment",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: admin
 )
 
 Booking.create!(
@@ -161,7 +198,9 @@ Booking.create!(
   client_id: client11.id,
   price: "R650.00",
   notes: "Mathematics tutoring",
-  payment: false
+  payment: false,
+  organization: org1,
+  user: admin
 )
 
 Booking.create!(
@@ -170,19 +209,9 @@ Booking.create!(
   client_id: client2.id,
   price: "R150.00",
   notes: "Nail appointment",
-  payment: false
-)
-
-# Create settings
-Setting.create!(
-  business_start: "09:00",
-  business_end: "17:00",
-  name: "My Business",
-  address1: "123 Main St",
-  address2: "Suite 100, Cityville",
-  phone: "123-456-7890",
-  email: "business@example.com",
-  user_id: user3.id,
+  payment: false,
+  organization: org1,
+  user: admin
 )
 
 # Create reminders
@@ -210,3 +239,5 @@ Reminder.create!(
   booking: Booking.second,
   message_type: "welcome"
 )
+
+puts "Seeded #{Organization.count} organizations, #{User.count} users, #{Client.count} clients, #{Booking.count} bookings, and #{Reminder.count} reminders."

@@ -30,7 +30,6 @@ class Users::SessionsController < Devise::SessionsController
       jwt_payload = JWT.decode(request.headers['Authorization'].split(' ').last,
       Rails.application.credentials.fetch(:secret_key_base)).first
       current_user = User.find(jwt_payload['sub'])
-      # current_user = User.find_by(id: jwt_payload['sub'], jti: jwt_payload['jti'])
     end
 
     if current_user

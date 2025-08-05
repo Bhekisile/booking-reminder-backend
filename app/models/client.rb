@@ -1,5 +1,7 @@
 class Client < ApplicationRecord
   belongs_to :user
+  belongs_to :organization
+  has_many :reminders, dependent: :destroy
   has_many :bookings, foreign_key: :client_id, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 255 }
