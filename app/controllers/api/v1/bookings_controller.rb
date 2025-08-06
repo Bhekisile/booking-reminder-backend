@@ -79,7 +79,7 @@ class Api::V1::BookingsController < ApplicationController
     month_trunc = Arel.sql("DATE_TRUNC('month', date)")
     # Fetch bookings for the current user's organization for the specified year
     # Group by month and count the number of bookings in each month
-    counts = Booking
+    counts = Booking.where(organization_id: current_user.organization_id)
       .where('EXTRACT(YEAR FROM date) = ?', year)
       .group(month_trunc)
       .order(month_trunc)

@@ -6,7 +6,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def create
     @user = User.new(user_params)
-    @user.admin = true if User.count == 0 # First user becomes admin
+    @user.role = 'admin'
 
     if @user.save
       UserMailer.with(user: @user).welcome_email.deliver_later
@@ -29,8 +29,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     inviter = invitation.user
     user = User.new(member_params.except(:token))
-    user.admin = true if inviter&.admin? # assign admin if inviter is admin
-    
+    user.role = 'admin' if inviter&.admin? # assign admin if inviter is admin
+
     user.save!
 
     UserMailer.with(user: user).welcome_email.deliver_later
