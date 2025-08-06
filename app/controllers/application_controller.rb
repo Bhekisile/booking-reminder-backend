@@ -9,7 +9,7 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_admin!
-    unless current_user&.admin?
+    unless @current_user&.role == 'admin'
       render json: { error: 'Admins only' }, status: :forbidden
     end
   end
