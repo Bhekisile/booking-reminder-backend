@@ -1,5 +1,4 @@
 class Api::V1::ClientsController < ApplicationController
-  before_action :authenticate_user!
 
   def index
     if params[:search].present?

@@ -33,6 +33,7 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :amazon
   config.secret_key_base = Rails.application.credentials.secret_key_base!
+  # config.secret_key_base = ENV['secret_key_base']
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = true
@@ -77,16 +78,12 @@ Rails.application.configure do
   
   # Option 3: Port 2525 (Alternative - uncomment if needed)
   config.action_mailer.smtp_settings = {
-    address: "sandbox.smtp.mailtrap.io",
-    port: 2525,
-    host: "sandbox.smtp.mailtrap.io",
-    authentication: "login",
     user_name: ENV["MAILTRAP_USERNAME"],
     password: ENV["MAILTRAP_PASSWORD"],
-    # ssl: false,
-    # tls: true,
-    # open_timeout: 10,
-    # read_timeout: 10,
-    # openssl_verify_mode: OpenSSL::SSL::VERIFY_PEER
+    address: "sandbox.smtp.mailtrap.io",
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
+    authentication: "login",
+    enable_starttls_auto: true,
   }
 end

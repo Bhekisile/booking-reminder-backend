@@ -1,8 +1,8 @@
 class Users::SessionsController < Devise::SessionsController
-  before_action :authenticate_user!, only: [:destroy]
+  respond_to :json
+  skip_before_action :authenticate_user!, only: [:create]
 
   include RackSessionsFix
-  respond_to :json
 
   def create
     user = User.find_by(email: params[:user][:email])

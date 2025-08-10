@@ -6,6 +6,6 @@ class InvitationMailer < ApplicationMailer
     @token = invitation[:token]
     @url = "#{ENV['FRONTEND_URL']}/RegisterMember?token=#{@token}"
 
-    mail(to: @invitation.email, subject: 'You’ve been invited to join the platform')
+    mail(to: @invitation.email, subject: 'Invitation to join the platform')
   end
 end

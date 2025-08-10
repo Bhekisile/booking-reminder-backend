@@ -8,7 +8,7 @@ class User < ApplicationRecord
   :rememberable,
   :validatable,
   :jwt_authenticatable, jwt_revocation_strategy: self
-  
+
   has_many :clients, dependent: :destroy
   has_many :bookings, dependent: :destroy # Users still have their own bookings, but these bookings will also be linked to an organization
 
