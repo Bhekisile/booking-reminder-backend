@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   before_create :confirmation_token
+  before_create :set_trial_dates
   include Devise::JWT::RevocationStrategies::JTIMatcher
     
   devise :database_authenticatable,
@@ -44,7 +45,63 @@ class User < ApplicationRecord
     save!
   end
 
+  def has_active_subscription?
+    return true if subscribed?
+    return trial_active?
+  end
+
+  def trial_active?
+    return false unless trial_end_date
+    Time.current < trial_end_date
+  end
+
+  def trial_days_remaining
+    return 0 unless trial_active?
+    ((trial_end_date - Time.current) / 1.day).ceil
+  end
+
+  def trial_status
+    if subscribed?
+      'subscribed'
+    elsif trial_active?
+      days_remaining = trial_days_remaining
+      if days_remaining <= 3
+        'expiring_soon'
+      elsif days_remaining <= 7
+        'expiring_this_week'
+      elsif days_remaining <= 30
+        'expiring_this_month'
+      else
+        'active'
+      end
+    else
+      'expired'
+    end
+  end
+
+  def subscription_required?
+    !has_active_subscription?
+  end
+
+  def can_access_feature?(feature)
+    case feature
+    when :basic_features
+      true # Always available
+    when :premium_features
+      has_active_subscription?
+    when :unlimited_bookings
+      has_active_subscription?
+    else
+      has_active_subscription?
+    end
+  end
+
   private
+
+  def set_trial_dates
+    self.trial_start_date = Time.current
+    self.trial_end_date = Time.current + 3.months
+  end
 
   def confirmation_token
     if self.confirm_token.blank?

@@ -32,6 +32,7 @@ Rails.application.routes.draw do
         patch :update_avatar, on: :member # PATCH /api/v1/users/:id/avatar
         delete :destroy_avatar, on: :member # NEW: Route for deleting avatar
         get :confirm_email, on: :member # GET /api/v1/users/:id/confirm_email
+        get :subscription_status, on: :member # GET /api/v1/users/:id/subscription_status
         collection do
           get 'current' #GET /api/v1/users/current
           get 'permissions', to: 'users#user_permissions' # GET /api/v1/users/permissions
@@ -41,15 +42,13 @@ Rails.application.routes.draw do
       get 'bookings/monthly_counts', to: 'bookings#monthly_counts'
       get 'bookings/all', to: 'bookings#all'
 
-      # post 'subscriptions/create_payment_url', to: 'subscriptions#create_payment_url'
-      # post 'payfast/itn', to: 'payfast#itn' # This is your IPN endpoint
+      post 'subscriptions/create_payment_url', to: 'subscriptions#create_payment_url'
+      post 'payfast/itn', to: 'payfast#itn' # This is your IPN endpoint
       
       resources :clients, only: [:index, :show, :new, :create, :update, :destroy]
       resources :bookings, only: [:index, :show, :create, :update, :destroy]
       resources :organizations, only: [:index, :show, :create, :update]
       resources :invitations, only: [:create] # POST /api/v1/invitations
-      resources :subscriptions, only: [:create_payment_url]
-      resources :payfast, only: [:itn] # POST /api/v1/itn
     end
   end
 end

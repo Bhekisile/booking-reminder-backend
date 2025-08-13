@@ -2,7 +2,8 @@ class Api::V1::UsersController < ApplicationController
   include Devise::Controllers::Helpers
   include Rails.application.routes.url_helpers
 
-  skip_before_action :authenticate_user!, only: [:confirm_email, :show]
+  skip_before_action :authenticate_user!, only: [:confirm_email, :show, :current]
+  before_action :set_user, only: [:show, :subscription_status]
 
   # GET /api/v1/users
   def index
@@ -142,6 +143,24 @@ class Api::V1::UsersController < ApplicationController
     render json: { error: "Failed to delete avatar", details: e.message }, status: :internal_server_error
   end
 
+  def subscription_status
+    render json: {
+      has_active_subscription: @user.has_active_subscription?,
+      trial_active: @user.trial_active?,
+      trial_days_remaining: @user.trial_days_remaining,
+      trial_status: @user.trial_status,
+      subscribed: @user.subscribed?,
+      trial_start_date: @user.trial_start_date,
+      trial_end_date: @user.trial_end_date,
+      subscription_status: @user.subscription_status,
+      can_access_features: {
+        basic_features: @user.can_access_feature?(:basic_features),
+        premium_features: @user.can_access_feature?(:premium_features),
+        unlimited_bookings: @user.can_access_feature?(:unlimited_bookings)
+      }
+    }
+  end
+
   private
 
   def sign_up_params
@@ -154,5 +173,11 @@ class Api::V1::UsersController < ApplicationController
 
   def avatar_params
     params.permit(:avatar)
+  end
+
+  def set_user
+    @user = User.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'User not found' }, status: :not_found
   end
 end

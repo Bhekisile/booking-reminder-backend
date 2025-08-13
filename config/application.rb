@@ -1,4 +1,5 @@
 require_relative "boot"
+require_relative '../lib/subscription_required'
 
 require "rails/all"
 
@@ -29,6 +30,7 @@ module BookingReminderBackend
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
     config.middleware.use ActionDispatch::Flash
+    config.middleware.use SubscriptionRequired
     config.active_storage.variant_processor = :mini_magick
     config.active_storage.verify_integrity = false
     config.active_job.queue_adapter = :sidekiq
