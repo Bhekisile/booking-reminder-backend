@@ -312,12 +312,22 @@ Devise.setup do |config|
   # config.sign_in_after_change_password = true
   config.jwt do |jwt|
     jwt.secret = Rails.application.credentials.fetch(:secret_key_base)
+
+    # Process JWT authentication for ALL API requests
+    jwt.request_formats = { user: [:json] }
+
+    # Allow JWT to be dispatched for all sign-in actions
     jwt.dispatch_requests = [
+      ['POST', %r{^/api/v1/login$}],
       ['POST', %r{^/login$}]
     ]
+
+    # Allow JWT to be revoked on logout
     jwt.revocation_requests = [
+      ['DELETE', %r{^/api/v1/logout$}],
       ['DELETE', %r{^/logout$}]
     ]
+
     jwt.expiration_time = 1.day.to_i
   end
 end

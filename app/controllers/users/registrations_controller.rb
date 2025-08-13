@@ -1,8 +1,12 @@
 class Users::RegistrationsController < Devise::RegistrationsController
+  skip_before_action :authenticate_user!, only: [:create, :create_member]
+  before_action :configure_sign_up_params, only: [:create]
+
+  include Devise::Controllers::Helpers
+  include Rails.application.routes.url_helpers
   include RackSessionsFix
   respond_to :json
 
-  before_action :configure_sign_up_params, only: [:create]
 
   def create
     @user = User.new(user_params)
@@ -27,10 +31,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
       return render json: { error: 'Invalid or expired token' }, status: :unprocessable_entity
     end
 
-    inviter = invitation.user
     user = User.new(member_params.except(:token))
-    user.role = 'admin' if inviter&.admin? # assign admin if inviter is admin
-
     user.save!
 
     UserMailer.with(user: user).welcome_email.deliver_later

@@ -5,7 +5,7 @@ class Api::V1::InvitationsController < ApplicationController
     @invitation = Invitation.new(invitation_params)
 
     if @invitation.save
-      InvitationMailer.invite_user({ invitation: @invitation, token: @invitation.token }).deliver_later
+      InvitationMailer.invite_user(invitation: @invitation, token: @invitation.token).deliver_later
 
       render json: { message: "Invitation sent", token: @invitation.token }, status: :created
     else

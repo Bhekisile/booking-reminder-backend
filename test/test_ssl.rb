@@ -3,7 +3,7 @@ require 'net/smtp'
 
 smtp_settings = {
   address: 'smtp.mailtrap.io',
-  port: 587,
+  port: 2525,
   user_name: 'd37a306cba7b6c', 
   password: '9b40469e542f1e'
 }

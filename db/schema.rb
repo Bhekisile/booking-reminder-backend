@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_03_165252) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_12_134032) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -107,16 +107,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_03_165252) do
     t.index ["booking_id"], name: "index_reminders_on_booking_id"
   end
 
-  create_table "subscriptions", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.boolean "active", default: false
-    t.datetime "trial_ends_at"
-    t.datetime "subscribed_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_subscriptions_on_user_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -131,6 +121,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_03_165252) do
     t.boolean "email_confirmed", default: false
     t.string "confirm_token"
     t.bigint "organization_id"
+    t.datetime "trial_start_date"
+    t.datetime "trial_end_date"
+    t.boolean "subscribed", default: false
+    t.string "subscription_status", default: "trial"
+    t.datetime "last_subscription_check"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["organization_id"], name: "index_users_on_organization_id"
@@ -146,6 +141,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_03_165252) do
   add_foreign_key "clients", "users"
   add_foreign_key "invitations", "organizations"
   add_foreign_key "reminders", "bookings"
-  add_foreign_key "subscriptions", "users"
   add_foreign_key "users", "organizations"
 end

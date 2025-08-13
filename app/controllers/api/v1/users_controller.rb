@@ -2,8 +2,8 @@ class Api::V1::UsersController < ApplicationController
   include Devise::Controllers::Helpers
   include Rails.application.routes.url_helpers
 
-  before_action :authenticate_user!, only: [:update, :update_avatar, :current, :destroy]
-  before_action :set_user, only: [:update, :update_avatar]
+  skip_before_action :authenticate_user!, only: [:confirm_email, :show, :current]
+  before_action :set_user, only: [:show, :subscription_status]
 
   # GET /api/v1/users
   def index
@@ -77,10 +77,10 @@ class Api::V1::UsersController < ApplicationController
 
   # PATCH/PUT /api/v1/users/1
   def update
-    if @user.update(user_params)
-      render json: @user
+    if current_user.update(user_params)
+      render json: current_user
     else
-      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -95,28 +95,28 @@ class Api::V1::UsersController < ApplicationController
         local_tempfile_path = params[:avatar].tempfile
         calculated_md5 = Digest::MD5.file(local_tempfile_path).base64digest
         puts "Checksum calculated from original uploaded tempfile: #{calculated_md5}"
-        @user.avatar.attach(params[:avatar])
+        current_user.avatar.attach(params[:avatar])
 
         # Explicitly save the user to persist the attachment and trigger validations
-        if @user.save # <--- ADD THIS LINE!
-          Rails.logger.info "Avatar attached successfully? #{@user.avatar.attached?}"
-          Rails.logger.info "User errors after save: #{@user.errors.full_messages if @user.errors.present?}"
-          Rails.logger.info "Active Storage errors after save: #{@user.avatar.errors.full_messages if @user.avatar.errors.present?}"
+        if current_user.save # <--- ADD THIS LINE!
+          Rails.logger.info "Avatar attached successfully? #{current_user.avatar.attached?}"
+          Rails.logger.info "User errors after save: #{current_user.errors.full_messages if current_user.errors.present?}"
+          Rails.logger.info "Active Storage errors after save: #{current_user.avatar.errors.full_messages if current_user.avatar.errors.present?}"
 
-          if @user.avatar.attached?
-            render json: { avatar_url: url_for(@user.avatar) }, status: :ok
+          if current_user.avatar.attached?
+            render json: { avatar_url: url_for(current_user.avatar) }, status: :ok
           else
             # This should ideally not be hit if @user.save was true, but good for robustness
             render json: {
               error: "Failed to attach avatar (post-save check)",
-              details: @user.errors.full_messages + (@user.avatar.errors.full_messages if @user.avatar.errors.present? ).to_a
+              details: current_user.errors.full_messages + (current_user.avatar.errors.full_messages if current_user.avatar.errors.present? ).to_a
             }, status: :unprocessable_entity
           end
         else
           # If @user.save returns false (due to validation errors)
           render json: {
             error: "Failed to update user due to validation errors",
-            details: @user.errors.full_messages
+            details: current_user.errors.full_messages
           }, status: :unprocessable_entity
         end
       else
@@ -124,33 +124,44 @@ class Api::V1::UsersController < ApplicationController
       end
     rescue ActiveStorage::IntegrityError => e
       Rails.logger.error "Integrity error: #{e.message}"
-      Rails.logger.error "Blob key: #{@user.avatar.blob&.key}"
+      Rails.logger.error "Blob key: #{current_user.avatar.blob&.key}"
       raise
     end
   end
 
   def destroy_avatar
     # Check if an avatar is attached before attempting to purge
-    if @user.avatar.attached?
-      @user.avatar.purge # This deletes the file from S3 and the record from the database
+    if current_user.avatar.attached?
+      current_user.avatar.purge # This deletes the file from S3 and the record from the database
       render json: { message: "Avatar successfully deleted" }, status: :ok
     else
       render json: { error: "No avatar to delete" }, status: :not_found
     end
   rescue => e
     # Catch any unexpected errors during deletion
-    Rails.logger.error "Error deleting avatar for user #{@user.id}: #{e.message}"
+    Rails.logger.error "Error deleting avatar for user #{current_user.id}: #{e.message}"
     render json: { error: "Failed to delete avatar", details: e.message }, status: :internal_server_error
   end
 
-  private
-
-  def set_user
-    @user = User.find(params[:id])
-    unless @user == current_user # Assuming current_user is set by authenticate_user!
-      render json: { error: "Unauthorized access" }, status: :unauthorized and return
-    end
+  def subscription_status
+    render json: {
+      has_active_subscription: @user.has_active_subscription?,
+      trial_active: @user.trial_active?,
+      trial_days_remaining: @user.trial_days_remaining,
+      trial_status: @user.trial_status,
+      subscribed: @user.subscribed?,
+      trial_start_date: @user.trial_start_date,
+      trial_end_date: @user.trial_end_date,
+      subscription_status: @user.subscription_status,
+      can_access_features: {
+        basic_features: @user.can_access_feature?(:basic_features),
+        premium_features: @user.can_access_feature?(:premium_features),
+        unlimited_bookings: @user.can_access_feature?(:unlimited_bookings)
+      }
+    }
   end
+
+  private
 
   def sign_up_params
     params.require(:user).permit(:name, :email, :password, :password_confirmation)
@@ -162,5 +173,11 @@ class Api::V1::UsersController < ApplicationController
 
   def avatar_params
     params.permit(:avatar)
+  end
+
+  def set_user
+    @user = User.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'User not found' }, status: :not_found
   end
 end
