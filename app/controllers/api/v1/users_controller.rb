@@ -2,7 +2,7 @@ class Api::V1::UsersController < ApplicationController
   include Devise::Controllers::Helpers
   include Rails.application.routes.url_helpers
 
-  skip_before_action :authenticate_user!, only: [:confirm_email, :show, :current]
+  # skip_before_action :authenticate_user!, only: [:confirm_email, :show, :current]
   before_action :set_user, only: [:show, :subscription_status]
 
   # GET /api/v1/users
