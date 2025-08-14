@@ -1,5 +1,5 @@
 class Users::RegistrationsController < Devise::RegistrationsController
-  skip_before_action :authenticate_user!, only: [:create, :create_member]
+  # skip_before_action :authenticate_user!, only: [:create, :create_member]
   before_action :configure_sign_up_params, only: [:create]
 
   include Devise::Controllers::Helpers
