@@ -5,7 +5,7 @@ Sidekiq.configure_server do |config|
   prefix = Rails.application.config.active_job.queue_name_prefix
   default_queue = prefix.present? ? "#{prefix}_default" : "default"
 
-  config.options[:queues] = [default_queue]
+  config.queues = [default_queue]
 end
 
 Sidekiq.configure_client do |config|
