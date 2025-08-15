@@ -1,4 +1,5 @@
 class Users::PasswordsController < Devise::PasswordsController
+  before_action :strip_email_param, only: :create
   # 👇 Skip authentication requirement for token-based reset
   # skip_before_action :authenticate_user!
 
@@ -48,6 +49,10 @@ class Users::PasswordsController < Devise::PasswordsController
   end
 
   private
+
+  def strip_email_param
+    params[:user][:email] = params[:user][:email].strip if params[:user] && params[:user][:email]
+  end
 
   def password_params
     params.require(:user).permit(:password, :password_confirmation)
