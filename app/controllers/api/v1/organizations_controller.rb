@@ -30,7 +30,7 @@ class Api::V1::OrganizationsController < ApplicationController
   end
 
   def update
-    if @organization.update(organization_params)
+    if @organization.update(organization_params.except(:user_id))
       render json: @organization, status: :ok
     else
       render json: @organization.errors, status: :unprocessable_entity
