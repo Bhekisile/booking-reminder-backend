@@ -2,7 +2,7 @@ class Api::V1::UsersController < ApplicationController
   include Devise::Controllers::Helpers
   include Rails.application.routes.url_helpers
 
-  # skip_before_action :authenticate_user!, only: [:confirm_email, :show, :current]
+  skip_before_action :authenticate_user!, only: [:confirm_email, :show]
   before_action :set_user, only: [:show, :subscription_status]
 
   # GET /api/v1/users
@@ -28,42 +28,36 @@ class Api::V1::UsersController < ApplicationController
     if user
       user.email_activate
       
-      redirect_to "#{ENV['FRONTEND_URL']}/login?confirmed=true", allow_other_host: true
+      redirect_to "#{ENV['FRONTEND_URL']}/loginConfirmation?confirmed=true", allow_other_host: true
     else
-      redirect_to "#{ENV['FRONTEND_URL']}/login?error=invalid_token", allow_other_host: true
+      redirect_to "#{ENV['FRONTEND_URL']}/loginConfirmation?error=invalid_token", allow_other_host: true
     end
   end
 
   def user_permissions
-    if current_user
-      permissions = {
-        can_create_booking: can?(:create, Booking),
-        can_view_own_bookings: can?(:read, Booking.new(user: current_user)), # Check if they can read a new booking associated with them
-        can_update_any_own_booking: can?(:update, Booking.new(user: current_user)), # Check if they can update any booking associated with them
-        can_delete_any_own_booking: can?(:destroy, Booking.new(user: current_user)), # Check if they can destroy any booking associated with them
-        can_view_all_bookings: can?(:read, Booking),
-      }
-      render json: permissions
-    else
-      render json: { error: 'Unauthorized' }, status: :unauthorized
-    end
+    permissions = {
+      can_create_booking: can?(:create, Booking),
+      can_view_own_bookings: can?(:read, Booking.new(user: current_user)), # Check if they can read a new booking associated with them
+      can_update_any_own_booking: can?(:update, Booking.new(user: current_user)), # Check if they can update any booking associated with them
+      can_delete_any_own_booking: can?(:destroy, Booking.new(user: current_user)), # Check if they can destroy any booking associated with them
+      can_view_all_bookings: can?(:read, Booking),
+    }
+    render json: permissions
   end
 
   def current
-    if current_user
-      avatar_url = current_user.avatar.attached? ? url_for(current_user.avatar) : nil
+    avatar_url = current_user.avatar.attached? ? url_for(current_user.avatar) : nil
 
-      render json: {
-        user_id: current_user.id,
-        email: current_user.email,
-        name: current_user.name,
-        role: current_user.role,
-        avatar_url: avatar_url, # <--- Send the URL, not the object
-        organization_id: current_user.organization_id,
-      }
-    else
-      render json: { error: 'Unauthorized' }, status: :unauthorized
-    end
+    render json: {
+      user_id: current_user.id,
+      email: current_user.email,
+      name: current_user.name,
+      role: current_user.role,
+      avatar_url: avatar_url,
+      organization_id: current_user.organization_id,
+      subscribed: current_user.subscribed?,
+      trial_start_date: current_user.trial_start_date,
+    }
   end
 
   # sign out the user
@@ -144,6 +138,24 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def subscription_status
+    # For organization members, include organization info
+    organization_info = if @user.organization_id.present?
+      admin_user = @user.organization.admin_user
+      {
+        organization_id: @user.organization_id,
+        is_organization_member: true,
+        admin_subscription_status: admin_user&.subscribed?,
+        admin_trial_active: admin_user&.trial_active?,
+        admin_trial_days_remaining: admin_user&.trial_days_remaining,
+        organization_user_count: @user.organization.user_count,
+        organization_remaining_slots: @user.organization.remaining_user_slots
+      }
+    else
+      {
+        is_organization_member: false
+      }
+    end
+
     render json: {
       has_active_subscription: @user.has_active_subscription?,
       trial_active: @user.trial_active?,
@@ -157,7 +169,9 @@ class Api::V1::UsersController < ApplicationController
         basic_features: @user.can_access_feature?(:basic_features),
         premium_features: @user.can_access_feature?(:premium_features),
         unlimited_bookings: @user.can_access_feature?(:unlimited_bookings)
-      }
+      },
+      role: @user.role,
+      **organization_info
     }
   end
 
