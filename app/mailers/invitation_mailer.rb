@@ -1,5 +1,5 @@
 class InvitationMailer < ApplicationMailer
-  default from: 'no-reply@yourapp.com'
+  default from: 'bheki@bjsoftwaredev.com'
 
   def invite_user(invitation)
     @invitation = invitation[:invitation]

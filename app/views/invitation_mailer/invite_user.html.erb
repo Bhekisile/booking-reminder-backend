@@ -2,11 +2,14 @@
 
 <h1>You have been invited to join <%= @invitation.organization.name %></h1>
 <p>
-  Please use the organization ID <%= @invitation.organization.id %>, your email and a password to sign up by clicking the link below.
+  Please use the <strong> organization ID <%= @invitation.organization.id %> </strong>, your email and a password to sign up by clicking the link below.
 </p>
 
 <p>
   <a href="<%= @url %>">Accept Invitation</a>
+</p>
+<p>
+Should you have successfully registered, before you login you will have to check your email for a confirmation link. Without confirmation of the registration, you will not be able to log in.
 </p>
 
 <p>If you did not expect this, you can ignore this email.</p>

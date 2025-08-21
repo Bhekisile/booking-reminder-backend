@@ -1,7 +1,7 @@
 class Users::PasswordsController < Devise::PasswordsController
   before_action :strip_email_param, only: :create
   # 👇 Skip authentication requirement for token-based reset
-  # skip_before_action :authenticate_user!
+  skip_before_action :authenticate_user!
 
   def create
     user = User.find_by(email: params[:user][:email])

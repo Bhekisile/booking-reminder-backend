@@ -1,27 +1,28 @@
 class Users::SessionsController < Devise::SessionsController
-  # skip_before_action :authenticate_user!, only: [:create]
+  skip_before_action :authenticate_user!, only: [:create]
   respond_to :json
 
   include RackSessionsFix
 
   def create
-    user = User.find_by(email: params[:user][:email])
-    if user && user.valid_password?(params[:user][:password])
-      if user.email_confirmed?
-        sign_in user
-        # Generate JWT token
-        token = Warden::JWTAuth::UserEncoder.new.call(user, :user, request.headers['Authorization'])
-        render json: {
-          status: { code: 200, message: 'Logged in successfully.' },
-          data: UserSerializer.new(user).serializable_hash[:data][:attributes].merge(token: token)
-        }, status: :ok
-      else
-        render json: { error: 'Email not confirmed. Please check your inbox.' }, status: :unauthorized
-      end
+  user = User.find_by(email: params[:user][:email])
+  if user && user.valid_password?(params[:user][:password])
+    if user.email_confirmed?
+      sign_in user
+      # Generate JWT token
+      token = Warden::JWTAuth::UserEncoder.new.call(user, :user, request.headers['Authorization'])
+
+      render json: {
+        status: { code: 200, message: 'Logged in successfully.' },
+        data: UserSerializer.new(user).serializable_hash[:data][:attributes].merge(token: token)
+      }, status: :ok
     else
-      render json: { error: 'Invalid email or password.' }, status: :unauthorized
+      render json: { error: 'Email not confirmed. Please check your inbox.' }, status: :unauthorized
     end
+  else
+    render json: { error: 'Invalid email or password.' }, status: :unauthorized
   end
+end
 
   private
 

@@ -16,7 +16,7 @@ class Api::V1::SubscriptionsController < ApplicationController
       email_address: user.email,
 
       m_payment_id: SecureRandom.hex(8),
-      amount: '50.00',
+      amount: '250.00',
       item_name: 'Premium Subscription',
       item_description: 'Access to all features',
 
