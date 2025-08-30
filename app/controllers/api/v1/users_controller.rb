@@ -4,8 +4,10 @@ class Api::V1::UsersController < ApplicationController
 
   skip_before_action :authenticate_user!, only: [:confirm_email, :show]
   before_action :set_user, only: [:show, :subscription_status]
+  before_action :authenticate_admin!, only: [:destroy_membership]
 
   # GET /api/v1/users
+  # Show all users in the organization
   def index
     @users = current_user.organization.users
     render json: @users
@@ -58,6 +60,23 @@ class Api::V1::UsersController < ApplicationController
       subscribed: current_user.subscribed?,
       trial_start_date: current_user.trial_start_date,
     }
+  end
+
+  #  DELETE api/v1/users/:id
+  # Remove a user from the admin's organization
+  def destroy_membership
+    user = current_user.organization.users.find(params[:id])
+
+    if user.admin?
+      return render json: { error: "Admin cannot be removed" }, status: :forbidden
+    end
+
+    # Soft remove → set organization_id to nil
+    if user.update(organization: nil)
+      render json: { message: "User removed from organization" }, status: :ok
+    else
+      render json: { error: user.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   # sign out the user
@@ -173,6 +192,12 @@ class Api::V1::UsersController < ApplicationController
       role: @user.role,
       **organization_info
     }
+  end
+
+  # admin remove user
+  def remove_user
+    @user.destroy
+    render json: { message: "User successfully removed" }, status: :ok
   end
 
   private

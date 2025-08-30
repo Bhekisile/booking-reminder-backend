@@ -31,6 +31,8 @@ Rails.application.routes.draw do
       resources :users, only: [] do
         patch :update_avatar, on: :member # PATCH /api/v1/users/:id/avatar
         delete :destroy_avatar, on: :member # NEW: Route for deleting avatar
+        delete :destroy_membership, on: :member # NEW: Route for destroying membership
+        get :index, on: :collection # GET /api/v1/users
         get :confirm_email, on: :member # GET /api/v1/users/:id/confirm_email
         get :subscription_status, on: :member # GET /api/v1/users/:id/subscription_status
         collection do

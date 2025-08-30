@@ -24,7 +24,7 @@ class Api::V1::SubscriptionsController < ApplicationController
     }
 
     query = URI.encode_www_form(payment_data)
-    payment_url = "https://sandbox.payfast.co.za/eng/process?#{query}"
+    payment_url = "https://www.payfast.co.za/eng/process?#{query}"
 
     render json: { payment_url: payment_url }
   end

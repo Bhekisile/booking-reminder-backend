@@ -10,19 +10,26 @@ class Api::V1::BookingsController < ApplicationController
     end
 
     # Scope bookings to the current user's organization.
-    # CanCanCan's `load_and_authorize_resource` would handle this automatically if used with `through`.
-    @bookings = current_user.organization.bookings # Fetch bookings belonging to the user's organization
+    # FIXED: Use booked_date instead of separate date and time columns
+    @bookings = current_user.organization.bookings
       .includes(:client)
-      .where("date >= ?", Date.today)
-      .order(:date, :time)
+      .where("booked_date >= ?", Date.today)
+      # .where("booked_date >= ?", Time.current.beginning_of_day) # Use Time.current for better timezone handling
+      .order(:booked_date) # Order by the combined datetime field
+    
     if params[:query].present?
       query = "%#{params[:query].downcase}%"
       @bookings = @bookings.joins(:client).where("LOWER(clients.name) LIKE ? OR LOWER(clients.surname) LIKE ?", query, query)
     end
+    
     @bookings = @bookings.paginate(page: params[:page], per_page: 10)
-    # Render bookings with client details
+    
+    # Render bookings with client details and formatted datetime
     render json: {
-      bookings: @bookings.as_json(include: { client: { only: [:name, :surname] } }),
+      bookings: @bookings.as_json(
+        include: { client: { only: [:name, :surname] } },
+        methods: [:formatted_datetime] # Include the formatted datetime from the model
+      ),
       meta: {
         total_pages: @bookings.total_pages,
         total_entries: @bookings.total_entries,
@@ -48,39 +55,46 @@ class Api::V1::BookingsController < ApplicationController
     unless current_user.organization
       render json: { error: "You must belong to an organization to create bookings." }, status: :forbidden
       return
-    else
-      @booking = Booking.new(booking_params)
-      @organization = current_user.organization
+    end
 
-      if @booking.save
-        if params[:reminder]
-          @organization = Organization.find(@booking.organization_id)
-          # Send booking confirmation SMS immediately
-          SmsPortalSender.send_sms(
-            to: @booking.client.cellphone,
-            message: "Hi #{@booking.client.name}, You have placed a booking with #{@organization.name}. Your appointment is booked for #{formatted_date(@booking)}. You can cancel your appointment at any time before your appointment date. Thank you."
-          )
+    @booking = Booking.new(booking_params)
+    @organization = current_user.organization
 
-          # Schedule reminder only if appointment is 48+ hours from now
-          if @booking.date.to_time.in_time_zone >= 2.days.from_now
-            ReminderJob.set(wait_until: (@booking.date.to_time.in_time_zone - 1.day)).perform_later(@booking.id)
-          end
+    if @booking.save
+      if booking_params[:reminder] == 'true' || booking_params[:reminder] == true
+        @organization = Organization.find(@booking.organization_id)
+        
+        # FIXED: Use the new formatted_datetime method
+        formatted_datetime = @booking.formatted_datetime
+        
+        # Send booking confirmation SMS immediately
+        SmsPortalSender.send_sms(
+          to: @booking.client.cellphone,
+          message: "Hi #{@booking.client.name}, You have placed a booking with #{@organization.name}. Your appointment is booked for #{formatted_datetime}. You can cancel your appointment at any time before your appointment date. Thank you."
+        )
+
+        # FIXED: Use booked_date for scheduling reminders
+        booking_datetime = @booking.booked_date.in_time_zone(@booking.time_zone || Time.zone.name)
+        
+        # Schedule reminder only if appointment is 48+ hours from now
+        if booking_datetime >= 2.days.from_now
+          ReminderJob.set(wait_until: (booking_datetime - 1.day)).perform_later(@booking.id)
         end
-        render json: @booking, status: :created, location: api_v1_booking_url(@booking)
-      else
-        render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
       end
+      render json: @booking, status: :created, location: api_v1_booking_url(@booking)
+    else
+      render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def monthly_counts
     year = params[:year].present? ? params[:year].to_i : Date.today.year
 
-    month_trunc = Arel.sql("DATE_TRUNC('month', date)")
+    month_trunc = Arel.sql("DATE_TRUNC('month', booked_date)") # Adjusted to use booked_date
     # Fetch bookings for the current user's organization for the specified year
     # Group by month and count the number of bookings in each month
     counts = Booking.where(organization_id: current_user.organization_id)
-      .where('EXTRACT(YEAR FROM date) = ?', year)
+      .where('EXTRACT(YEAR FROM booked_date) = ?', year)
       .group(month_trunc)
       .order(month_trunc)
       .count
@@ -162,16 +176,32 @@ class Api::V1::BookingsController < ApplicationController
     render json: { error: e.message }, status: :forbidden
   end
 
-  # Strong parameters for booking attributes
+
+  # Strong parameters for booking attributes - UPDATED
   def booking_params
-    params.require(:booking).permit(:time, :date, :user_id, :price, :payment, :notes, :reminder, :client_id, :organization_id) # Adjust attributes as needed
+    params.permit(:booked_date, :time_zone, :user_id, :price, :payment, :notes, :reminder, :client_id, :organization_id)
   end
 
   def update_params
     params.require(:booking).permit(:payment, :user_id)
   end
 
+  # FIXED: New method for proper datetime formatting
+  def formatted_date_time(booking)
+    # Use the booked_date field which should contain the full datetime
+    timezone = booking.time_zone.presence || Time.zone.name
+    booking.booked_date.in_time_zone(timezone).strftime("%d %b %Y at %H:%M")
+  end
+
+  # Keep the old method for backward compatibility if needed elsewhere
   def formatted_date(booking)
-    booking.date.strftime("%A, %B %d at %I:%M %p")
+    tz = booking.time_zone.presence || Time.zone.name
+    # This assumes you have separate date and time fields - update as needed
+    if booking.respond_to?(:booked_date)
+      booking.booked_date.in_time_zone(tz).strftime("%d %b %Y at %H:%M")
+    else
+      # Fallback for old structure
+      booking.date.to_time.in_time_zone(tz).strftime("%d %b %Y at %H:%M")
+    end
   end
 end
