@@ -4,7 +4,7 @@ class InvitationMailer < ApplicationMailer
   def invite_user(invitation)
     @invitation = invitation[:invitation]
     @token = invitation[:token]
-    @url = "#{ENV['FRONTEND_URL']}/registerMember?token=#{@token}"
+    @url = "#{ENV['FRONTEND_URL']}/register-member?token=#{@token}"
 
     mail(to: @invitation.email, subject: 'Invitation to join the platform')
   end

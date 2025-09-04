@@ -88,24 +88,30 @@ class Api::V1::BookingsController < ApplicationController
   end
 
   def monthly_counts
-    year = params[:year].present? ? params[:year].to_i : Date.today.year
+    end_date = Date.today.end_of_month
+    start_date = end_date - 11.months  # Last 12 months
 
-    month_trunc = Arel.sql("DATE_TRUNC('month', booked_date)") # Adjusted to use booked_date
-    # Fetch bookings for the current user's organization for the specified year
-    # Group by month and count the number of bookings in each month
+    month_trunc = Arel.sql("DATE_TRUNC('month', booked_date)")
+
+    # Fetch counts
     counts = Booking.where(organization_id: current_user.organization_id)
-      .where('EXTRACT(YEAR FROM booked_date) = ?', year)
-      .group(month_trunc)
-      .order(month_trunc)
-      .count
-  
-    formatted_counts = counts.map do |month, count|
+                    .where(booked_date: start_date..end_date)
+                    .group(month_trunc)
+                    .order(month_trunc)
+                    .count
+
+    # Convert keys to Date objects for easy lookup
+    counts = counts.transform_keys { |k| k.to_date }
+
+    # Build array for all 12 months
+    months = (0..11).map { |i| (start_date + i.months).beginning_of_month }
+    formatted_counts = months.map do |month|
       {
-        month: month.strftime('%B'), # e.g., "January"
-        count: count
+        month: month.strftime('%B'), 
+        count: counts[month] || 0
       }
     end
-  
+
     render json: formatted_counts
   end
 
