@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+      h1 {
+        color: #333333;
+        font-size: 22px;
+      }
+      p {
+        color: #555555;
+        line-height: 1.5;
+        font-size: 16px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 16px 0;
+        font-size: 16px;
+        color: #ffffff;
+        background-color: #007bff;
+        text-decoration: none;
+        border-radius: 6px;
+      }
+      .btn:hover {
+        background-color: #0056b3;
+      }
+      .footer {
+        margin-top: 24px;
+        font-size: 13px;
+        color: #888888;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome to <%= @app_name %> 🎉</h1>
+
+      <p>Hi <%= @user.name %>,</p>
+
+      <p>
+        We're excited to have you on board! To help you get started quickly,
+        we've created a short <strong>welcome video</strong> that shows you the
+        first steps after logging in.
+      </p>
+
+      <p style="text-align: center;">
+        <a href="<%= @video_url %>" class="btn">👉 Watch the Video</a>
+      </p>
+
+      <p>Here's what you'll learn in just a few minutes:</p>
+      <ul>
+        <li>How to verify your email and complete signup</li>
+        <li>Setting up your organization in the Settings screen</li>
+        <li>Adding users to your organization</li>
+        <li>Navigating tabs for Home, Bookings, Clients, and Subscriptions</li>
+        <li>Managing clients and creating bookings with SMS reminders</li>
+      </ul>
+
+      <p style="text-align: center;">
+        <a href="<%= @guide_url %>" class="btn">📖 Read the Quick Start Guide</a>
+      </p>
+
+      <p>
+        We recommend watching the video before adding your first client or
+        booking — it'll save you time and get you up to speed fast.
+      </p>
+
+      <p>
+        If you have any questions, just reply to this email or check out our
+        support center. We're here to help!
+      </p>
+
+      <p>Welcome aboard,<br />— The <%= @app_name %> Team</p>
+
+      <div class="footer">
+        <p>
+          You're receiving this email because you signed up for
+          <%= @app_name %>. If this wasn't you, please ignore it.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
