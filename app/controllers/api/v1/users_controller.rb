@@ -30,9 +30,9 @@ class Api::V1::UsersController < ApplicationController
     if user
       user.email_activate
       
-      redirect_to "#{ENV['FRONTEND_URL']}/loginConfirmation?confirmed=true", allow_other_host: true
+      redirect_to "#{ENV['FRONTEND_URL']}/login-confirmation?confirmed=true", allow_other_host: true
     else
-      redirect_to "#{ENV['FRONTEND_URL']}/loginConfirmation?error=invalid_token", allow_other_host: true
+      redirect_to "#{ENV['FRONTEND_URL']}/login-confirmation?error=invalid_token", allow_other_host: true
     end
   end
 

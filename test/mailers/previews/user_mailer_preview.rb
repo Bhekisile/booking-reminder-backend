@@ -10,4 +10,8 @@ class UserMailerPreview < ActionMailer::Preview
     # user = User.last
     UserMailer.with(user: user).reset_password_email(reset_password_token)
   end
+
+  def onboarding_email(user = User.first)
+    UserMailer.with(user: user).onboarding_email
+  end
 end

@@ -14,6 +14,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     if @user.save
       UserMailer.with(user: @user).welcome_email.deliver_later
+      UserMailer.with(user: @user).onboarding_email.deliver_later(wait: 10.minutes)
       render json: { notice: "Account created!" }
     else
       Rails.logger.error "User creation failed: #{@user.errors.full_messages.join(', ')}"
