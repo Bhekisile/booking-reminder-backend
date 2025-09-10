@@ -118,7 +118,7 @@ To get a local copy up and running, follow these steps:
 ## 🔭 Future Features <a name="future-features"></a>
 
 - The application to be available on google play and app store.
-- Google calendar API for creating events in the clendar.
+- Google calendar API for creating events in the calendar.
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
