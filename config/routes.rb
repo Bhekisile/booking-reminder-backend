@@ -26,6 +26,10 @@ Rails.application.routes.draw do
     resources :dashboard, only: [:index]
   end
 
+  namespace :users do
+    resource :change_password, only: [:update]
+  end
+
   namespace :api do
     namespace :v1 do
       resources :users, only: [] do
