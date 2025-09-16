@@ -51,4 +51,43 @@ RSpec.describe "Emails API", type: :request do
       end
     end
   end
+
+  describe "POST /api/v1/emails/check (Postmark webhook)" do
+    let(:headers) { { "CONTENT_TYPE" => "application/json" } }
+    let(:payload) do
+      {
+        RecordType: "Bounce",
+        MessageID: "883953f4-6105-42a2-a16a-77a8eac79483",
+        Type: "HardBounce",
+        TypeCode: 1,
+        Name: "Hard bounce",
+        Tag: "Invitation",
+        MessageStream: "outbound",
+        Description: "The server was unable to deliver your message (ex: unknown user, mailbox not found).",
+        Email: "example@example.com",
+        From: "sender@example.com",
+        BouncedAt: "2023-01-01T12:00:00Z"
+      }
+    end
+
+    it "accepts a valid webhook payload and returns 200 OK" do
+      post "/api/v1/emails/check", params: payload.to_json, headers: headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "logs the webhook payload" do
+      allow(Rails.logger).to receive(:info)
+
+      post "/api/v1/emails/check", params: payload.to_json, headers: headers
+
+      expect(Rails.logger).to have_received(:info).with(/Postmark webhook payload/)
+    end
+
+    it "handles invalid JSON gracefully" do
+      post "/api/v1/emails/check", params: "invalid json", headers: headers
+
+      expect(response).to have_http_status(:ok) # still return 200 so Postmark doesn’t retry forever
+    end
+  end
 end

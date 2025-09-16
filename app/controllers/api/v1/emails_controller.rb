@@ -2,7 +2,7 @@ require 'net/http'
 require 'json'
 
 class Api::V1::EmailsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:check]
+  skip_before_action :authenticate_user!, only: [:check, :webhook]
   
   def check
     email = params[:email]
@@ -29,5 +29,20 @@ class Api::V1::EmailsController < ApplicationController
     else
       render json: { error: 'Unable to check email' }, status: :bad_gateway
     end
+  end
+
+  # POST /api/v1/emails/check (Postmark webhook)
+  def webhook
+    begin
+      raw_body = request.body.read
+      payload = JSON.parse(raw_body)
+    rescue JSON::ParserError
+      payload = {}
+    end
+
+    Rails.logger.info "Postmark webhook payload: #{payload.inspect}"
+
+    # Do something with it (e.g., save to DB, trigger notification, etc.)
+    head :ok # Always respond 200 so Postmark doesn’t retry
   end
 end
