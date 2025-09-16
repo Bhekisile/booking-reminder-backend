@@ -33,7 +33,12 @@ class Api::V1::EmailsController < ApplicationController
 
   # POST /api/v1/emails/check (Postmark webhook)
   def webhook
-    payload = JSON.parse(request.body.read) rescue {}
+    begin
+      raw_body = request.body.read
+      payload = JSON.parse(raw_body)
+    rescue JSON::ParserError
+      payload = {}
+    end
 
     Rails.logger.info "Postmark webhook payload: #{payload.inspect}"
 
