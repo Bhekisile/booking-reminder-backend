@@ -1,7 +1,6 @@
 require 'net/http'
 require 'json'
 
-
 class Api::V1::EmailsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:check]
   
@@ -22,7 +21,11 @@ class Api::V1::EmailsController < ApplicationController
     response = http.request(Net::HTTP::Get.new(url))
 
     if response.is_a?(Net::HTTPSuccess)
-      render json: JSON.parse(response.body)
+      begin
+        render json: JSON.parse(response.body)
+      rescue JSON::ParserError
+        render json: { error: 'Invalid JSON response from Postmark' }, status: :bad_gateway
+      end
     else
       render json: { error: 'Unable to check email' }, status: :bad_gateway
     end
