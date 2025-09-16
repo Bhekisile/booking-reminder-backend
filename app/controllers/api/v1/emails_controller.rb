@@ -9,12 +9,17 @@ class Api::V1::EmailsController < ApplicationController
     email = params[:email]
 
     if email.blank?
-      render json: { error: 'Email is required' }, status: :bad_request and return
+      render json: { error: 'Email is required' }, status: :bad_request
+      return
     end
 
     url = URI("https://api.rebound.postmarkapp.com/v1/check?email=#{email}&token=#{ENV['POSTMARK_REBOUND_TOKEN']}")
 
-    response = Net::HTTP.get_response(url)
+    http = Net::HTTP.new(url.host, url.port)
+    http.use_ssl = (url.scheme == "https")
+    http.open_timeout = 5 # seconds
+    http.read_timeout = 5 # seconds
+    response = http.request(Net::HTTP::Get.new(url))
 
     if response.is_a?(Net::HTTPSuccess)
       render json: JSON.parse(response.body)
