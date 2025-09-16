@@ -47,6 +47,7 @@ Rails.application.routes.draw do
 
       get 'bookings/monthly_counts', to: 'bookings#monthly_counts'
       get 'bookings/all', to: 'bookings#all'
+      get 'emails/check', to: 'emails#check'
 
       post 'subscriptions/create_payment_url', to: 'subscriptions#create_payment_url'
       post 'payfast/itn', to: 'payfast#itn' # This is your IPN endpoint
