@@ -22,7 +22,7 @@ class Api::V1::BookingsController < ApplicationController
       @bookings = @bookings.joins(:client).where("LOWER(clients.name) LIKE ? OR LOWER(clients.surname) LIKE ?", query, query)
     end
     
-    @bookings = @bookings.paginate(page: params[:page], per_page: 10)
+    # @bookings = @bookings.paginate(page: params[:page], per_page: 10)
     
     # Render bookings with client details and formatted datetime
     render json: {
@@ -30,11 +30,11 @@ class Api::V1::BookingsController < ApplicationController
         include: { client: { only: [:name, :surname] } },
         methods: [:formatted_datetime] # Include the formatted datetime from the model
       ),
-      meta: {
-        total_pages: @bookings.total_pages,
-        total_entries: @bookings.total_entries,
-        current_page: @bookings.current_page
-      }
+      # meta: {
+      #   total_pages: @bookings.total_pages,
+      #   total_entries: @bookings.total_entries,
+      #   current_page: @bookings.current_page
+      # }
     }
   end
 
